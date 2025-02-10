@@ -1,0 +1,10 @@
+# nvm autoswitch. should be generally sourced
+
+cd() {
+  builtin cd "$@"
+  if [[ -f .nvmrc && -r .nvmrc ]]; then
+    nvm use --silent
+  elif [[ `nvm current` != `nvm version default` ]]; then
+    nvm use --silent default
+  fi
+}

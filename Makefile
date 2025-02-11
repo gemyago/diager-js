@@ -1,5 +1,7 @@
-.PHONY: dist
+.PHONY: dist lint
 
-# Call make for each package
 dist:
 	$(MAKE) -C packages/core dist
+
+lint:
+	$(MAKE) -C packages/core lint

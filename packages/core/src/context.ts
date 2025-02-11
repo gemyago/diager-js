@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'async_hooks';
-import { LogLevel } from './logger';
+import { LogLevel } from './logger.js';
 
 /**
  * Represents bare minimal set of context values. Can be extended with

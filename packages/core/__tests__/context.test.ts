@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { ContextValues, createContext } from '../src/context';
+import { ContextValues, createContext } from '../src/context.js';
 
 describe('context', () => {
   type TestContextValues = ContextValues & {

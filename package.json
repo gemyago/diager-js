@@ -6,7 +6,6 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@faker-js/faker": "^9.4.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.1",
     "eslint": "^8.57.1",

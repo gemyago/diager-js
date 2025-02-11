@@ -1,3 +1,7 @@
 {
-    "name": "@diager-js/core"
-  }
+    "name": "@diager-js/core",
+    "type": "module",
+    "devDependencies": {
+        "@faker-js/faker": "^9.4.0"
+    }
+}

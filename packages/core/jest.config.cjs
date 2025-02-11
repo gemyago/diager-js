@@ -1,6 +1,6 @@
 /** @type {import('ts-jest/dist/types').JestConfigWithTsJest} */
 module.exports = {
-  preset: 'ts-jest',
+  preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
   testPathIgnorePatterns: [
     '/dist/',
@@ -9,6 +9,9 @@ module.exports = {
   collectCoverageFrom: [
     '**/*.ts',
   ],
+  moduleNameMapper: {
+    '(.+)\\.js': '$1',
+  },
   coveragePathIgnorePatterns: [
     '/node_modules/',
     '/coverage/',

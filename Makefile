@@ -5,3 +5,6 @@ dist:
 
 lint:
 	$(MAKE) -C packages/core lint
+
+test:
+	$(MAKE) -C packages/core test

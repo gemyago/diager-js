@@ -2,6 +2,20 @@ import type pino from 'pino';
 import type { Context, ContextValues } from './context.js';
 import { Logger } from './logger.js';
 
+// Minimal pino logger interface that is needed to create a logger.
+type PinoLogger = Pick<pino.Logger,
+  'child' |
+  'level' |
+  'levelVal' |
+  'error' |
+  'warn' |
+  'info' |
+  'debug' |
+  'trace' |
+  'isLevelEnabled' |
+  'levels'
+>;
+
 /**
  * Creates a root logger instance that is using underlying pino logger to write logs.
  * Usually you would create a single root logger per application and then use create child loggers
@@ -22,9 +36,9 @@ export function createRootPinoLogger(opts: {
    * Please note that the level of the pino logger will be manipulated as needed so
    * do not change it after the root logger initialization.
    */
-  pinoLogger: pino.Logger;
+  pinoLogger: PinoLogger;
 }): Logger {
-  function createPinoLoggerAdapter(pinoLogger: pino.Logger): Logger {
+  function createPinoLoggerAdapter(pinoLogger: PinoLogger): Logger {
     const initialLevel = pinoLogger.levelVal;
     pinoLogger.level = 'trace'; // eslint-disable-line no-param-reassign -- we are filtering logs on our own so have to set this to min value
     const self: Logger = {

@@ -2,7 +2,6 @@ interface LogData {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-// TODO: Maybe make those an array or something.
 export const LogLevel = {
   error: 'error',
   warn: 'warn',
@@ -13,23 +12,13 @@ export const LogLevel = {
 
 export type LogLevel = typeof LogLevel[keyof typeof LogLevel]
 
-type LevelMethods<
-  TLogLevels extends LogLevel,
-> = {
-  /**
-   * Write a log entry with a given level. Please use withData or withError to include
-   * them with the log being written.
-   */
-  [level in TLogLevels]: (msg: string) => void
-}
-
 /**
  * Unified logger interface. Key points:
  * 1. Standardizes the way error objects are included in logs
  * 2. Standardizes the way arbitrary data is included with log messages
  * 3. Standardizes the way child loggers are created
  */
-export type Logger = LevelMethods<LogLevel> & {
+export type Logger = {
   /**
    * Creates a child logger of a given group name.
    * The way group is written to an underlying logger
@@ -53,7 +42,38 @@ export type Logger = LevelMethods<LogLevel> & {
   withError(error: unknown): Omit<Logger, 'withError' | 'withGroup'>
 
   /**
-   * Clean way to write log with runtime defined level
+   * Write a log entry with error level. Please use withData or withError to
+   * include additional data or error object with the log message.
+   */
+  error(msg: string): void
+
+  /**
+   * Write a log entry with warn level. Please use withData or withError to
+   * include additional data or error object with the log message.
+   */
+  warn(msg: string): void
+
+  /**
+   * Write a log entry with info level. Please use withData or withError to
+   * include additional data or error object with the log message.
+   */
+  info(msg: string): void
+
+  /**
+   * Write a log entry with debug level. Please use withData or withError to
+   * include additional data or error object with the log message.
+   */
+  debug(msg: string): void
+
+  /**
+   * Write a log entry with trace level. Please use withData or withError to
+   * include additional data or error object with the log message.
+   */
+  trace(msg: string): void
+
+  /**
+   * Clean way to write log with runtime defined level. Please use withData or withError to
+   * include additional data or error object with the log message.
    */
   write(level: LogLevel, msg: string): void
 

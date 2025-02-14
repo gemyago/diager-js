@@ -8,7 +8,7 @@
 import { randomUUID } from 'crypto';
 import pino from 'pino'; // eslint-disable-line import/no-extraneous-dependencies -- dev dependency used to only run example
 import { ContextValues, createContext } from '../src/context.js';
-import { createRootPinoLogger } from '../src/logger.js';
+import { createRootPinoLogger } from '../src/pino-adapter.js';
 
 type ApplicationContext = ContextValues & {
   ctxVal1: string

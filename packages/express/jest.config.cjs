@@ -10,6 +10,12 @@ module.exports = {
     '**/*.ts',
   ],
   moduleNameMapper: {
+    /**
+     * Naming packages like this makes transpilers crasy, but it's a real package:
+     * https://github.com/whitequark/ipaddr.js
+     */
+    '^ipaddr\\.js(.*)': 'ipaddr.js$1',
+
     '(.+)\\.js': '$1',
   },
   coveragePathIgnorePatterns: [

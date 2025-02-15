@@ -22,8 +22,8 @@ export type ContextValues = {
  * Tiny abstraction on top of AsyncLocalStorage.
  * Allows storing and retrieving contextual data in a "thread local"
  * like way. This component works together with logger and can also
- * be used separately and by other components to produce context
- * aware telemetry
+ * be used separately by other components to produce context
+ * aware telemetry, outbound http headers, etc.
  */
 export type Context<TValues extends ContextValues> = {
   /**

@@ -1,7 +1,11 @@
 #!/usr/bin/env tsx
 
 /**
- * Run this like below to see it in action (assuming you followed the README.md to setup the env):
+ * This example demonstrates how to use the unified logger interface
+ * backed by pino logger and diag context.
+ *
+ * Please setup project as per README.md before running this example.
+ * Once ready you can run this example using following command:
  * ./packages/core/examples/basic.ts | pino-pretty
  */
 
@@ -11,6 +15,7 @@ import { ContextValues, createContext } from '../src/context.js';
 import { createRootPinoLogger } from '../src/pino-adapter.js';
 
 type ApplicationContext = ContextValues & {
+  // Application specific context values.
   ctxVal1: string
   ctxVal2: string
 }

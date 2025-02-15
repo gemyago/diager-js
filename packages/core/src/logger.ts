@@ -1,4 +1,4 @@
-interface LogData {
+export interface LogData {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 

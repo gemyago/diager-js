@@ -1,6 +1,6 @@
 import type pino from 'pino';
 import type { Context, ContextValues } from './context.js';
-import { Logger } from './logger.js';
+import { LogData, Logger, LogLevel } from './logger.js';
 
 // Minimal pino logger interface that is needed to create a logger.
 type PinoLogger = Pick<pino.Logger,
@@ -15,6 +15,84 @@ type PinoLogger = Pick<pino.Logger,
   'isLevelEnabled' |
   'levels'
 >;
+
+/**
+ * This class is not exposed on purpose. Please use createRootPinoLogger function
+ * to create logger instances.
+ *
+ * Using class here instead of factory function to reduce memory footprint
+ * of logger instances. This is important because logger instances are created
+ * quite frequently and using factory function will lead to methods allocation on
+ * memory heap.
+ */
+class PinoLoggerAdapter implements Logger {
+  private pinoLogger: PinoLogger;
+
+  private context: Context<ContextValues>;
+
+  private initialLevel: number;
+
+  constructor(pinoLogger: PinoLogger, context: Context<ContextValues>) {
+    this.pinoLogger = pinoLogger;
+    this.context = context;
+    this.initialLevel = pinoLogger.levelVal;
+
+    // Set the level to min possible. We will do "manual" level filtering.
+    // See isLevelEnabled method for more details.
+    this.pinoLogger.level = 'trace';
+  }
+
+  withGroup(name: string): Logger {
+    return new PinoLoggerAdapter(this.pinoLogger.child({ group: name }), this.context);
+  }
+
+  withData(data: LogData): Logger {
+    return new PinoLoggerAdapter(this.pinoLogger.child({ data }), this.context);
+  }
+
+  withError(error: Error): Logger {
+    return new PinoLoggerAdapter(this.pinoLogger.child({ err: error }), this.context);
+  }
+
+  write(level: LogLevel, msg: string): void {
+    if (this.isLevelEnabled(level)) {
+      this.pinoLogger[level]({ context: this.context.values }, msg);
+    }
+  }
+
+  error(msg: string): void {
+    this.write('error', msg);
+  }
+
+  warn(msg: string): void {
+    this.write('warn', msg);
+  }
+
+  info(msg: string): void {
+    this.write('info', msg);
+  }
+
+  debug(msg: string): void {
+    this.write('debug', msg);
+  }
+
+  trace(msg: string): void {
+    this.write('trace', msg);
+  }
+
+  isLevelEnabled(level: string): boolean {
+    const levelVal = this.pinoLogger.levels.values[level];
+
+    if (!levelVal) {
+      return this.pinoLogger.isLevelEnabled(level);
+    }
+
+    const desiredMinLevelValue = this.context.values.minLogLevel
+      ? this.pinoLogger.levels.values[this.context.values.minLogLevel]
+      : this.initialLevel;
+    return levelVal >= desiredMinLevelValue;
+  }
+}
 
 /**
  * Creates a root logger instance that is using underlying pino logger to write logs.
@@ -38,68 +116,5 @@ export function createRootPinoLogger(opts: {
    */
   pinoLogger: PinoLogger;
 }): Logger {
-  function createPinoLoggerAdapter(pinoLogger: PinoLogger): Logger {
-    const initialLevel = pinoLogger.levelVal;
-    pinoLogger.level = 'trace'; // eslint-disable-line no-param-reassign -- we are filtering logs on our own so have to set this to min value
-    const self: Logger = {
-      withGroup(name) {
-        return createPinoLoggerAdapter(pinoLogger.child({ group: name }));
-      },
-
-      withData(data) {
-        return createPinoLoggerAdapter(pinoLogger.child({ data }));
-      },
-
-      withError(error) {
-        return createPinoLoggerAdapter(pinoLogger.child({ err: error }));
-      },
-
-      write(level, msg) {
-        if (self.isLevelEnabled(level)) {
-          pinoLogger[level]({ context: opts.context.values }, msg);
-        }
-      },
-
-      error(msg) {
-        self.write('error', msg);
-      },
-
-      warn(msg) {
-        self.write('warn', msg);
-      },
-
-      info(msg) {
-        self.write('info', msg);
-      },
-
-      debug(msg) {
-        self.write('debug', msg);
-      },
-
-      trace(msg) {
-        self.write('trace', msg);
-      },
-
-      isLevelEnabled(level) {
-        const levelVal = pinoLogger.levels.values[level];
-
-        // If we don't know how to check it, we just delegate to pino
-        if (!levelVal) {
-          return pinoLogger.isLevelEnabled(level);
-        }
-
-        // We either use context "overridden" value or the initial value
-        const desiredMinLevelValue = opts.context.values.minLogLevel
-          ? pinoLogger.levels.values[opts.context.values.minLogLevel]
-          : initialLevel;
-        if (levelVal < desiredMinLevelValue) {
-          return false;
-        }
-        return true;
-      },
-    };
-    return self;
-  }
-
-  return createPinoLoggerAdapter(opts.pinoLogger);
+  return new PinoLoggerAdapter(opts.pinoLogger, opts.context);
 }

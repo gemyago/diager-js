@@ -17,5 +17,5 @@ npm i
 
 # Run lint and tests
 make lint
-make tests
+make test
 ```

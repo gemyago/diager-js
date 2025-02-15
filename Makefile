@@ -1,18 +1,10 @@
-.PHONY: dist
+.PHONY: dist lint
 
-eslint=./node_modules/.bin/eslint
-tsc=./node_modules/.bin/tsc
-jest=./node_modules/.bin/jest
-
-clean_dist:
-	rm -r -f dist
-
-dist: clean_dist
-	$(tsc)
-	rm -rf dist/scripts dist/__tests__
+dist:
+	$(MAKE) -C packages/core dist
 
 lint:
-	$(eslint) . --ext .js,.jsx,.ts,.tsx
+	$(MAKE) -C packages/core lint
 
 test:
-	$(jest) --coverage
+	$(MAKE) -C packages/core test

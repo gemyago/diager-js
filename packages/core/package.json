@@ -1,6 +1,14 @@
 {
     "name": "@diager-js/core",
     "type": "module",
+    "exports": {
+      ".": {
+        "types": "./dist/src/index.d.ts",
+        "default": "./dist/src/index.js",
+        "require": "./dist/src/index.js",
+        "import": "./dist/src/index.js"
+      }
+    },
     "devDependencies": {
         "@faker-js/faker": "^9.4.0",
         "pino": "^9.6.0"

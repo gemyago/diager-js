@@ -18,9 +18,9 @@ type PinoLogger = Pick<pino.Logger,
 
 /**
  * Creates a root logger instance that is using underlying pino logger to write logs.
- * Usually you would create a single root logger per application and then use create child loggers
- * using withGroup method to create loggers for individual application components. Please prefer to
- * avoid global loggers and instead initialize your components with explicit logger instances.
+ * Usually you would create a single root logger per application and then use it to
+ * create child loggers using withGroup method. Please prefer to avoid global loggers
+ * and instead initialize your components with explicit logger instances.
  *
  * Please feel free to configure the pino logger instance as needed. Please note that the level
  * of the pino logger will be manipulated to allow context specific log level filtering.

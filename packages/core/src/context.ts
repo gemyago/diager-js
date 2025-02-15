@@ -39,7 +39,7 @@ export type Context<TValues extends ContextValues> = {
   ): TRes
 
   /**
-   * Will run given function with current context is extended with given values.
+   * Will run given function with current context that is extended with given values.
    */
   child<TRes>(
     values: Partial<TValues>, runnable: () => TRes

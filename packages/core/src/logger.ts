@@ -15,7 +15,7 @@ export type LogLevel = typeof LogLevel[keyof typeof LogLevel]
 /**
  * Unified logger interface. Key points:
  * 1. Standardizes the way error objects are included in logs
- * 2. Standardizes the way arbitrary data is included with log messages
+ * 2. Standardizes the way arbitrary data is included with logs
  * 3. Standardizes the way child loggers are created
  */
 export type Logger = {

@@ -32,14 +32,22 @@ class PinoLoggerAdapter implements Logger {
 
   private initialLevel: number;
 
-  constructor(pinoLogger: PinoLogger, context: Context<ContextValues>) {
+  constructor(
+    pinoLogger: PinoLogger,
+    context: Context<ContextValues>,
+    isRoot: boolean = false,
+  ) {
     this.pinoLogger = pinoLogger;
     this.context = context;
     this.initialLevel = pinoLogger.levelVal;
 
-    // Set the level to min possible. We will do "manual" level filtering.
-    // See isLevelEnabled method for more details.
-    this.pinoLogger.level = 'trace';
+    // Setting level in pino is somewhat heavy operation. We only need it for root logger
+    // in practice. All child loggers will have the level derived from the root logger.
+    if (isRoot) {
+      // Set the level to min possible. We will do "manual" level filtering.
+      // See isLevelEnabled method for more details.
+      this.pinoLogger.level = 'trace';
+    }
   }
 
   withGroup(name: string): Logger {
@@ -116,5 +124,5 @@ export function createRootPinoLogger(opts: {
    */
   pinoLogger: PinoLogger;
 }): Logger {
-  return new PinoLoggerAdapter(opts.pinoLogger, opts.context);
+  return new PinoLoggerAdapter(opts.pinoLogger, opts.context, true);
 }

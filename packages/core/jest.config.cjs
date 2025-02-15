@@ -21,6 +21,7 @@ module.exports = {
     '/example/',
     '/dist/',
     '/__tests__/mocks',
+    '/examples',
   ],
   coverageThreshold: {
     global: {

@@ -12,8 +12,10 @@ To get started, run:
 # make sure no errors
 direanv allow
 
+# Install dependencies
 npm i
 
+# Run lint and tests
 make lint
 make tests
 ```

@@ -1,15 +1,15 @@
 {
-    "name": "@diager-js/express",
-    "type": "module",
-    "dependencies": {
-        "@diager-js/core": "../core"
-    },
-    "devDependencies": {
-        "@faker-js/faker": "^9.4.0",
-        "@types/express": "^5.0.0",
-        "@types/supertest": "^6.0.2",
-        "express": "^4.21.2",
-        "pino": "^9.6.0",
-        "supertest": "^7.0.0"
-    }
+  "name": "@diager-js/express",
+  "type": "module",
+  "dependencies": {
+    "@diager-js/core": "../core"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.4.0",
+    "@types/express": "^5.0.0",
+    "@types/supertest": "^6.0.2",
+    "express": "^4.21.2",
+    "pino": "^9.6.0",
+    "supertest": "^7.0.0"
+  }
 }

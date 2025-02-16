@@ -9,6 +9,10 @@ function getDurationMs(start: bigint) {
   return Number((process.hrtime.bigint() - start) / nanoSecInMs);
 }
 
+/**
+ * Creates middleware that logs http access events. Prefer adding it
+ * right after the diag middleware (but not before!).
+ */
 export function createAccessLogMiddleware(opts: {
   /**
    * Logger instance that will be used to log http access events.
@@ -50,7 +54,6 @@ export function createAccessLogMiddleware(opts: {
     const startProcessingData = {
       method: req.method,
       url: req.originalUrl,
-      // headers: obfuscate(req.headers as Record<string, string>),
       headers: req.headers,
       query: req.query,
     };
@@ -63,7 +66,6 @@ export function createAccessLogMiddleware(opts: {
         statusCode: res.statusCode,
         route: req.route?.path,
         headers: res.getHeaders(),
-        // headers: obfuscate(res.getHeaders() as Record<string, string>),
         durationMs: getDurationMs(reqStart),
       };
 

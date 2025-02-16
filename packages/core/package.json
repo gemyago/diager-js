@@ -1,5 +1,6 @@
 {
     "name": "@diager-js/core",
+    "version": "0.0.1",
     "type": "module",
     "main": "dist/cjs/src/index.js",
     "exports": {

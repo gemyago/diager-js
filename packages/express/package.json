@@ -1,8 +1,9 @@
 {
   "name": "@diager-js/express",
+  "version": "0.0.1",
   "type": "module",
   "dependencies": {
-    "@diager-js/core": "../core"
+    "@diager-js/core": "^0.0.1"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.4.0",

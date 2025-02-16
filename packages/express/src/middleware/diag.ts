@@ -2,6 +2,12 @@ import { Context, ContextValues, LogLevel } from '@diager-js/core';
 import { randomUUID } from 'crypto';
 import type { RequestHandler } from 'express';
 
+type ParsedField<T> = { field: keyof T, parse: (value: string) => T[keyof T] | undefined };
+
+type StringOrParsedFields<T> = {
+  [K in keyof T]: T[K] extends string ? K | ParsedField<T> : ParsedField<T>;
+}[keyof T];
+
 /**
  * Initializes diag context with values from the request. This middleware
  * should usually be very first in the middleware chain.
@@ -28,7 +34,7 @@ export function createDiagMiddleware<
    * will be attempted to be taken from X-Log-Level header. Invalid
    * values will be discarded.
    */
-  contextHeaders?: Record<string, keyof TContextValues>;
+  contextHeaders?: Record<string, StringOrParsedFields<TContextValues>>;
 
   /**
    * Defines mapping between request parameters and context values where key is the
@@ -49,9 +55,13 @@ export function createDiagMiddleware<
     for (const [header, contextField] of Object.entries(deps.contextHeaders ?? {})) {
       const headerValue = req.header(header);
       if (headerValue !== undefined) {
-        // We may need to support non string derived values
-        nextContextValues[contextField] = headerValue
-          .toString() as TContextValues[typeof contextField];
+        if (typeof contextField === 'object' && 'field' in contextField) {
+          nextContextValues[contextField.field] = contextField.parse(headerValue.toString());
+        } else {
+          nextContextValues[
+            contextField as keyof TContextValues
+          ] = headerValue.toString() as TContextValues[keyof TContextValues];
+        }
       }
     }
 

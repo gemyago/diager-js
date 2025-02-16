@@ -1,10 +1,11 @@
 {
     "name": "@diager-js/core",
     "type": "module",
+    "main": "dist/cjs/src/index.js",
     "exports": {
       ".": {
         "types": "./dist/esm/src/*.d.ts",
-        "default": "./dist/esm/src/index.js",
+        "default": "./dist/cjs/src/index.js",
         "require": "./dist/cjs/src/index.js",
         "import": "./dist/esm/src/index.js"
       }

@@ -37,7 +37,7 @@ describe('diag-middleware', () => {
     const deps = createMockDeps();
     let handlerCalled = false;
     const app = createApp({
-      middleware: createDiagMiddleware(deps),
+      middleware: createDiagMiddleware({ context: deps.context }),
       mountRoutes: (a) => {
         a.get('/something', (req, res) => {
           handlerCalled = true;

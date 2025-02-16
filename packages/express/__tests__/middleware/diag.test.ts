@@ -68,7 +68,7 @@ describe('diag-middleware', () => {
 
   it('should process the request and delegate to next', async () => {
     const deps = createMockDeps();
-    const middleware = createDiagMiddleware(deps);
+    const middleware = createDiagMiddleware({ context: deps.context });
     const { res, handlerCalled, handlerContextValues } = await sendRequest({ deps, middleware });
     expect(res.status).toEqual(200);
     expect(handlerCalled).toEqual(true);
@@ -125,6 +125,37 @@ describe('diag-middleware', () => {
       onRequest: (req) => req.set('X-Log-Level', faker.lorem.word()),
     });
     expect(handlerContextValues?.minLogLevel).toBeUndefined();
+    expect(res.status).toEqual(200);
+  });
+
+  it('should set correlationId and minLogLevel from configured headers', async () => {
+    const deps = createMockDeps();
+    const correlationIdHeader = `X-Custom-Correlation-ID-${faker.lorem.word()}`;
+    const correlationIdValue = randomUUID();
+    const logLevelHeader = `X-Custom-Log-Level-${faker.lorem.word()}`;
+    const logLevelValue = faker.helpers.objectValue(LogLevel);
+    const middleware = createDiagMiddleware({
+      ...deps,
+      contextHeaders: {
+        [correlationIdHeader]: 'correlationId',
+        [logLevelHeader]: 'minLogLevel',
+      },
+    });
+    const { handlerContextValues, res } = await sendRequest({
+      deps,
+      middleware,
+      onRequest: (req) => {
+        req.set('X-Log-Level', faker.helpers.objectValue(LogLevel));
+        req.set('X-Correlation-ID', randomUUID());
+
+        req.set(correlationIdHeader, correlationIdValue);
+        req.set(logLevelHeader, logLevelValue);
+      },
+    });
+    expect(handlerContextValues).toEqual({
+      correlationId: correlationIdValue,
+      minLogLevel: logLevelValue,
+    });
     expect(res.status).toEqual(200);
   });
 });

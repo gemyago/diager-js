@@ -45,20 +45,38 @@ export function createDiagMiddleware<
 }): RequestHandler {
   const { uuidFn = randomUUID, context } = deps;
   return (req, res, next) => {
-    let nextCorrelationId = req.header('X-Correlation-ID');
-    if (nextCorrelationId === undefined) {
-      nextCorrelationId = req.header('X-Request-ID');
+    const nextContextValues = {} as Partial<TContextValues>;
+    for (const [header, contextField] of Object.entries(deps.contextHeaders ?? {})) {
+      const headerValue = req.header(header);
+      if (headerValue !== undefined) {
+        // We may need to support non string derived values
+        nextContextValues[contextField] = headerValue
+          .toString() as TContextValues[typeof contextField];
+      }
     }
-    if (nextCorrelationId === undefined) {
-      nextCorrelationId = uuidFn();
-    }
-    const nextContextValues = {
-      correlationId: nextCorrelationId,
-    } as Partial<TContextValues>;
 
-    const reqLogLevel = req.header('X-Log-Level')?.toString();
-    if (reqLogLevel !== undefined && reqLogLevel in LogLevel) {
-      nextContextValues.minLogLevel = reqLogLevel as LogLevel;
+    // Set correlationId from default headers if not set
+    if (nextContextValues.correlationId === undefined) {
+      nextContextValues.correlationId = req.header('X-Correlation-ID');
+    }
+    if (nextContextValues.correlationId === undefined) {
+      nextContextValues.correlationId = req.header('X-Request-ID');
+    }
+    if (nextContextValues.correlationId === undefined) {
+      nextContextValues.correlationId = uuidFn();
+    }
+
+    // Set minLogLevel from default headers if not set
+    if (nextContextValues.minLogLevel === undefined) {
+      const reqLogLevel = req.header('X-Log-Level')?.toString();
+      if (reqLogLevel !== undefined) {
+        nextContextValues.minLogLevel = reqLogLevel as LogLevel;
+      }
+    }
+
+    // Strip bad log level values
+    if (nextContextValues.minLogLevel && !(nextContextValues.minLogLevel in LogLevel)) {
+      delete nextContextValues.minLogLevel;
     }
     context.child(nextContextValues, () => next());
   };

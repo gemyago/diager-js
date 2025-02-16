@@ -34,7 +34,7 @@ describe('diag-middleware', () => {
       mountRoutes: (a) => {
         a.get('/something', (req, res) => {
           handlerCalled = true;
-          res.status(200);
+          res.status(200).end();
         });
       },
     });

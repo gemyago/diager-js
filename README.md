@@ -15,6 +15,9 @@ direanv allow
 # Install dependencies
 npm i
 
+# Build the project
+make dist
+
 # Run lint and tests
 make lint
 make test

@@ -26,22 +26,24 @@ describe('diag-middleware', () => {
     return app;
   }
 
-  type Deps = Parameters<typeof createDiagMiddleware>[0]
-  function createMockDeps() {
+  type Deps<TContextValues extends ContextValues> = Parameters<
+    typeof createDiagMiddleware<TContextValues>
+  >[0]
+  function createMockDeps<TContextValues extends ContextValues>() {
     return {
-      context: createContext({ correlationId: randomUUID() }) as Deps['context'],
-      uuidFn: jest.fn(randomUUID) as NonNullable<Deps['uuidFn']>,
+      context: createContext({ correlationId: randomUUID() }) as Deps<TContextValues>['context'],
+      uuidFn: jest.fn(randomUUID) as NonNullable<Deps<TContextValues>['uuidFn']>,
     };
   }
 
-  async function sendRequest(params: {
-    deps: Deps,
+  async function sendRequest<TContextValues extends ContextValues>(params: {
+    deps: Deps<TContextValues>,
     middleware: RequestHandler,
     onRequest?: (req: supertest.Test) => void,
   }) {
     const { deps, middleware } = params;
     let handlerCalled = false;
-    let handlerContextValues: ContextValues | undefined;
+    let handlerContextValues: TContextValues | undefined;
     const app = createApp({
       middleware,
       mountRoutes: (a) => {

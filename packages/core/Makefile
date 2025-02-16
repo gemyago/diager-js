@@ -10,7 +10,7 @@ clean:
 dist/%: FORCE
 	$(tsc) -p tsconfig.$*.json
 
-dist: clean_dist dist/esm dist/cjs FORCE
+dist: clean dist/esm dist/cjs FORCE
 
 lint:
 	$(eslint) . --ext .js,.jsx,.ts,.tsx

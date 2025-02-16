@@ -8,6 +8,21 @@ import { createServer, RequestListener } from 'http';
 import { createDiagMiddleware } from '../src/middleware/diag.js';
 import { createAccessLogMiddleware } from '../src/middleware/access-log.js';
 
+/**
+ * This example demonstrate usage of diag middleware in combination with logger and diag context.
+ * Please setup project as per README.md before running this example.
+ * To run the example, execute the following command:
+ * ./packages/express/examples/basic.ts | pino-pretty
+ *
+ * Run the below in a separate terminal. You should see logs with info level only.
+ * curl localhost:3000/pets
+ *
+ * Run the below in a separate terminal. You should see logs with debug level as well.
+ * curl localhost:3000/pets --header "X-Log-Level: debug"
+ *
+ * You should also see a consistent correlationId with each log message.
+ */
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const errorHandler : ErrorRequestHandler = (err, req, res, next) => {
   res.status(500).send({

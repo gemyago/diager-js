@@ -7,10 +7,10 @@
   },
   "exports": {
     "./middleware": {
-      "types": "./dist/esm/src/middleware/*.d.ts",
-      "default": "./dist/cjs/src/middleware/index.js",
+      "types": "./dist/esm/src/middleware/index.d.ts",
+      "import": "./dist/esm/src/middleware/index.js",
       "require": "./dist/cjs/src/middleware/index.js",
-      "import": "./dist/esm/src/middleware/index.js"
+      "default": "./dist/cjs/src/middleware/index.js"
     }
   },
   "devDependencies": {

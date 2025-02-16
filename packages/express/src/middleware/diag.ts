@@ -57,32 +57,36 @@ export function createDiagMiddleware<
   uuidFn?: () => string;
 }): RequestHandler {
   const { uuidFn = randomUUID, context } = deps;
-  return (req, res, next) => {
-    const nextContextValues = {} as Partial<TContextValues>;
-    for (const [header, contextField] of Object.entries(deps.contextHeaders ?? {})) {
-      const headerValue = req.header(header);
-      if (headerValue !== undefined) {
-        if (typeof contextField === 'object' && 'field' in contextField) {
-          nextContextValues[contextField.field] = contextField.parse(headerValue.toString());
-        } else {
-          nextContextValues[
-            contextField as keyof TContextValues
-          ] = headerValue.toString() as TContextValues[keyof TContextValues];
-        }
+
+  function assignContextValue<TVals>(
+    nextContextValues: Partial<TVals>,
+    fieldName: StringOrParsedFields<TVals>,
+    fieldValue?: string,
+  ) {
+    if (fieldValue !== undefined) {
+      if (typeof fieldName === 'object' && 'field' in fieldName) {
+        // eslint-disable-next-line no-param-reassign -- doing it otherwise would be more complex
+        nextContextValues[fieldName.field] = fieldName.parse(fieldValue);
+      } else {
+        // eslint-disable-next-line no-param-reassign -- doing it otherwise would be more complex
+        nextContextValues[
+          fieldName as keyof TVals
+        ] = fieldValue as TVals[keyof TVals];
       }
     }
+  }
 
-    for (const [param, contextField] of Object.entries(deps.contextParams ?? {})) {
-      const paramValue = req.params[param];
-      if (paramValue !== undefined) {
-        if (typeof contextField === 'object' && 'field' in contextField) {
-          nextContextValues[contextField.field] = contextField.parse(paramValue);
-        } else {
-          nextContextValues[
-            contextField as keyof TContextValues
-          ] = paramValue as TContextValues[keyof TContextValues];
-        }
-      }
+  const contextHeadersEntries = Object.entries(deps.contextHeaders ?? {});
+  const contextParamsEntries = Object.entries(deps.contextParams ?? {});
+
+  return (req, res, next) => {
+    const nextContextValues = {} as Partial<TContextValues>;
+    for (const [header, contextField] of contextHeadersEntries) {
+      assignContextValue(nextContextValues, contextField, req.header(header)?.toString());
+    }
+
+    for (const [param, contextField] of contextParamsEntries) {
+      assignContextValue(nextContextValues, contextField, req.params[param]);
     }
 
     // Set correlationId from default headers if not set

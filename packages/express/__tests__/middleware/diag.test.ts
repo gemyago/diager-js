@@ -1,4 +1,4 @@
-import express, { Application, ErrorRequestHandler, RequestHandler } from 'express';
+import express, { ErrorRequestHandler, RequestHandler } from 'express';
 import { ContextValues, createContext, LogLevel } from '@diager-js/core';
 import { randomUUID } from 'crypto';
 import supertest from 'supertest';
@@ -15,17 +15,6 @@ describe('diag-middleware', () => {
     });
   };
 
-  function createApp(opts: {
-    middleware: RequestHandler,
-    mountRoutes: (app: Application) => void
-  }) {
-    const app = express();
-    app.use(opts.middleware);
-    opts.mountRoutes(app);
-    app.use(errorHandler);
-    return app;
-  }
-
   type Deps<TContextValues extends ContextValues> = Parameters<
     typeof createDiagMiddleware<TContextValues>
   >[0]
@@ -40,21 +29,28 @@ describe('diag-middleware', () => {
     deps: Deps<TContextValues>,
     middleware: RequestHandler,
     onRequest?: (req: supertest.Test) => void,
+    middlewarePath?: string,
+    routePath?: string,
+    requestPath?: string,
   }) {
     const { deps, middleware } = params;
     let handlerCalled = false;
     let handlerContextValues: TContextValues | undefined;
-    const app = createApp({
-      middleware,
-      mountRoutes: (a) => {
-        a.get('/something', (req, res) => {
-          handlerCalled = true;
-          handlerContextValues = deps.context.values;
-          res.status(200).end();
-        });
-      },
+
+    const app = express();
+    if (params.middlewarePath) {
+      app.use(params.middlewarePath, middleware);
+    } else {
+      app.use(middleware);
+    }
+    app.get(params.routePath ?? '/something', (req, res) => {
+      handlerCalled = true;
+      handlerContextValues = deps.context.values;
+      res.status(200).end();
     });
-    const req = supertest(app).get('/something');
+    app.use(errorHandler);
+
+    const req = supertest(app).get(params.requestPath ?? '/something');
     if (params.onRequest) {
       params.onRequest(req);
     }
@@ -255,5 +251,45 @@ describe('diag-middleware', () => {
     });
 
     expect(res.status).toEqual(200);
+  });
+
+  it('should set custom context values from path', async () => {
+    const field1Name = Symbol(`field1-${faker.lorem.word()}`);
+    const field2Name = Symbol(`field2-${faker.lorem.word()}`);
+
+    const pathParam1 = `param1${faker.lorem.word()}`;
+    const pathParam2 = `param1${faker.lorem.word()}`;
+
+    const field1Value = faker.lorem.word();
+    const field2Value = faker.number.int();
+
+    type CustomContextValues = ContextValues & {
+      [field1Name]: string,
+      [field2Name]: number,
+    };
+
+    const deps = createMockDeps<CustomContextValues>();
+    const middleware = createDiagMiddleware({
+      ...deps,
+      contextParams: {
+        [pathParam1]: field1Name,
+        [pathParam2]: { field: field2Name, parse: (v) => parseInt(v, 10) },
+      },
+    });
+
+    const { handlerContextValues, res } = await sendRequest({
+      deps,
+      middleware,
+      middlewarePath: `/params/param1/:${pathParam1}/param2/:${pathParam2}`,
+      routePath: `/params/param1/:${pathParam1}/param2/:${pathParam2}/something`,
+      requestPath: `/params/param1/${field1Value}/param2/${field2Value}/something`,
+    });
+    expect(res.status).toEqual(200);
+
+    expect(handlerContextValues).toEqual({
+      correlationId: expect.anything(),
+      [field1Name]: field1Value,
+      [field2Name]: field2Value,
+    });
   });
 });

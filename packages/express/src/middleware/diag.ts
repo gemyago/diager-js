@@ -8,6 +8,9 @@ type StringOrParsedFields<T> = {
   [K in keyof T]: T[K] extends string ? K | ParsedField<T> : ParsedField<T>;
 }[keyof T];
 
+// TODO: Multiple instances of the middleware mounted under different routes
+// should not conflict with each other.
+
 /**
  * Initializes diag context with values from the request. This middleware
  * should usually be very first in the middleware chain.
@@ -37,11 +40,15 @@ export function createDiagMiddleware<
   contextHeaders?: Record<string, StringOrParsedFields<TContextValues>>;
 
   /**
+   * Note: in order to use contextParams the middleware must be mounted under
+   * a route that has the parameters defined.
+   *
    * Defines mapping between request parameters and context values where key is the
    * request parameter name and value is a context value.
    */
-  contextParams?: Record<string, keyof Omit<TContextValues,
-    'correlationId' | 'minLogLevel'>
+  contextParams?: Record<
+    string,
+    StringOrParsedFields<Omit<TContextValues, 'correlationId' | 'minLogLevel'>>
   >;
 
   /**
@@ -61,6 +68,19 @@ export function createDiagMiddleware<
           nextContextValues[
             contextField as keyof TContextValues
           ] = headerValue.toString() as TContextValues[keyof TContextValues];
+        }
+      }
+    }
+
+    for (const [param, contextField] of Object.entries(deps.contextParams ?? {})) {
+      const paramValue = req.params[param];
+      if (paramValue !== undefined) {
+        if (typeof contextField === 'object' && 'field' in contextField) {
+          nextContextValues[contextField.field] = contextField.parse(paramValue);
+        } else {
+          nextContextValues[
+            contextField as keyof TContextValues
+          ] = paramValue as TContextValues[keyof TContextValues];
         }
       }
     }

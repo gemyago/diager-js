@@ -52,8 +52,9 @@ class PinoLoggerAdapter implements Logger {
   }
 
   #createChild(bindings: Record<string, unknown>): Logger {
+    const childLogger = this.pinoLogger.child(bindings);
     return new PinoLoggerAdapter(
-      this.pinoLogger.child(bindings),
+      childLogger,
       this.context,
       this.minLevel,
       false,

@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto';
 import express, { ErrorRequestHandler } from 'express';
 import pino from 'pino';
 import { createDiagMiddleware } from '../src/middleware/diag.js';
+import { createAccessLogMiddleware } from '../src/middleware/access-log.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const errorHandler : ErrorRequestHandler = (err, req, res, next) => {
@@ -17,11 +18,12 @@ const errorHandler : ErrorRequestHandler = (err, req, res, next) => {
 const diagCtx = createContext({ correlationId: randomUUID() });
 const rootLogger = createRootPinoLogger({
   context: diagCtx,
-  pinoLogger: pino.pino(),
+  pinoLogger: pino(),
 });
 
 const app = express();
 app.use(createDiagMiddleware({ context: diagCtx }));
+app.use(createAccessLogMiddleware({ logger: rootLogger.withGroup('access-logs') }));
 app.use(errorHandler);
 app.get('/pets', (_, res) => {
   res.send([

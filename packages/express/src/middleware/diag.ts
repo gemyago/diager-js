@@ -1,4 +1,5 @@
 import { Context, ContextValues } from '@diager-js/core';
+import { randomUUID } from 'crypto';
 import type { RequestHandler } from 'express';
 
 /**
@@ -6,8 +7,8 @@ import type { RequestHandler } from 'express';
  * should usually be very first in the middleware chain.
  */
 export function createDiagMiddleware<
-  TContextValues extends ContextValues = ContextValues
->(_: {
+  TContextValues extends ContextValues
+>(deps: {
   /**
    * Instance of the diagnostic context associated with the middleware.
    * Will be used to store diagnostic information.
@@ -42,7 +43,12 @@ export function createDiagMiddleware<
    */
   uuidFn?: () => string;
 }): RequestHandler {
+  const { uuidFn = randomUUID, context } = deps;
   return (req, res, next) => {
-    next();
+    const nextCorrelationId = uuidFn();
+    const nextContextValues = {
+      correlationId: nextCorrelationId,
+    } as Partial<TContextValues>;
+    context.child(nextContextValues, () => next());
   };
 }

@@ -1,8 +1,18 @@
 {
-    "name": "@diager-js/core",
-    "type": "module",
-    "devDependencies": {
-        "@faker-js/faker": "^9.4.0",
-        "pino": "^9.6.0"
+  "name": "@diager-js/core",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/cjs/src/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/src/index.d.ts",
+      "import": "./dist/esm/src/index.js",
+      "require": "./dist/cjs/src/index.js",
+      "default": "./dist/cjs/src/index.js"
     }
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.4.0",
+    "pino": "^9.6.0"
+  }
 }

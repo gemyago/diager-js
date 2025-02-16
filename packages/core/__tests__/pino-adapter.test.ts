@@ -110,6 +110,19 @@ describe('pino-adapter', () => {
       });
     });
 
+    it.each([
+      { actual: 'error', configured: 'warn', want: true },
+      { actual: 'warn', configured: 'warn', want: true },
+      { actual: 'debug', configured: 'info', want: false },
+      { actual: 'trace', configured: 'info', want: false },
+    ] as const)('should be properly inherited from parent (actual: $actual, configured: $configured)', (tc) => {
+      const mockDeps = createMockDeps();
+      mockDeps.pinoLogger.level = tc.configured;
+      const rootLogger = createRootPinoLogger(mockDeps);
+      const childLogger = rootLogger.withGroup(faker.lorem.word());
+      expect(childLogger.isLevelEnabled(tc.actual)).toBe(tc.want);
+    });
+
     it('should delegate to pino if level is unknown', () => {
       const mockDeps = createMockDeps();
       const rootLogger = createRootPinoLogger(mockDeps);

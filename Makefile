@@ -1,10 +1,25 @@
 .PHONY: dist lint
 
-dist:
-	$(MAKE) -C packages/core dist
+packages = $(patsubst packages/%,%,$(wildcard packages/*))
 
-lint:
-	$(MAKE) -C packages/core lint
+.PHONY: FORCE
 
-test:
-	$(MAKE) -C packages/core test
+packages/%/dist: FORCE
+	@echo "Building: $*"
+	@$(MAKE) -C packages/$* dist
+dist: $(patsubst %,packages/%/dist,$(packages))
+
+packages/%/lint: FORCE
+	@echo "Linting: $*"
+	@$(MAKE) -C packages/$* lint
+lint: $(patsubst %,packages/%/lint,$(packages))
+
+packages/%/test: FORCE
+	@echo "Running tests: $*"
+	@$(MAKE) -C packages/$* test
+test: $(patsubst %,packages/%/test,$(packages))
+
+packages/%/clean: FORCE
+	@echo "Cleaning: $*"
+	@$(MAKE) -C packages/$* clean
+clean: $(patsubst %,packages/%/clean,$(packages))

@@ -45,7 +45,13 @@ export function createDiagMiddleware<
 }): RequestHandler {
   const { uuidFn = randomUUID, context } = deps;
   return (req, res, next) => {
-    const nextCorrelationId = uuidFn();
+    let nextCorrelationId = req.header('X-Correlation-ID');
+    if (nextCorrelationId === undefined) {
+      nextCorrelationId = req.header('X-Request-ID');
+    }
+    if (nextCorrelationId === undefined) {
+      nextCorrelationId = uuidFn();
+    }
     const nextContextValues = {
       correlationId: nextCorrelationId,
     } as Partial<TContextValues>;

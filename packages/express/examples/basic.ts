@@ -34,5 +34,5 @@ app.get('/pets', (_, res) => {
 });
 
 app.listen(3000, () => {
-  rootLogger.info('Server is listening on http://localhost:3000/pets');
+  rootLogger.info('Server is listening on http://localhost:3000/');
 });

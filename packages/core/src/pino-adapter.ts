@@ -30,16 +30,17 @@ class PinoLoggerAdapter implements Logger {
 
   private context: Context<ContextValues>;
 
-  private initialLevel: number;
+  private minLevel: number;
 
   constructor(
     pinoLogger: PinoLogger,
     context: Context<ContextValues>,
-    isRoot: boolean = false,
+    minLevel: number,
+    isRoot: boolean,
   ) {
     this.pinoLogger = pinoLogger;
     this.context = context;
-    this.initialLevel = pinoLogger.levelVal;
+    this.minLevel = minLevel;
 
     // Setting level in pino is somewhat heavy operation. We only need it for root logger
     // in practice. All child loggers will have the level derived from the root logger.
@@ -50,16 +51,25 @@ class PinoLoggerAdapter implements Logger {
     }
   }
 
+  #createChild(bindings: Record<string, unknown>): Logger {
+    return new PinoLoggerAdapter(
+      this.pinoLogger.child(bindings),
+      this.context,
+      this.minLevel,
+      false,
+    );
+  }
+
   withGroup(name: string): Logger {
-    return new PinoLoggerAdapter(this.pinoLogger.child({ group: name }), this.context);
+    return this.#createChild({ group: name });
   }
 
   withData(data: LogData): Logger {
-    return new PinoLoggerAdapter(this.pinoLogger.child({ data }), this.context);
+    return this.#createChild({ data });
   }
 
-  withError(error: Error): Logger {
-    return new PinoLoggerAdapter(this.pinoLogger.child({ err: error }), this.context);
+  withError(err: Error): Logger {
+    return this.#createChild({ err });
   }
 
   write(level: LogLevel, msg: string): void {
@@ -97,7 +107,7 @@ class PinoLoggerAdapter implements Logger {
 
     const desiredMinLevelValue = this.context.values.minLogLevel
       ? this.pinoLogger.levels.values[this.context.values.minLogLevel]
-      : this.initialLevel;
+      : this.minLevel;
     return levelVal >= desiredMinLevelValue;
   }
 }
@@ -124,5 +134,5 @@ export function createRootPinoLogger(opts: {
    */
   pinoLogger: PinoLogger;
 }): Logger {
-  return new PinoLoggerAdapter(opts.pinoLogger, opts.context, true);
+  return new PinoLoggerAdapter(opts.pinoLogger, opts.context, opts.pinoLogger.levelVal, true);
 }

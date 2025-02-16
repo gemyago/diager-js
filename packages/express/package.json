@@ -5,6 +5,14 @@
   "dependencies": {
     "@diager-js/core": "^0.0.1"
   },
+  "exports": {
+    "./middleware": {
+      "types": "./dist/esm/src/middleware/*.d.ts",
+      "default": "./dist/cjs/src/middleware/index.js",
+      "require": "./dist/cjs/src/middleware/index.js",
+      "import": "./dist/esm/src/middleware/index.js"
+    }
+  },
   "devDependencies": {
     "@faker-js/faker": "^9.4.0",
     "@types/express": "^5.0.0",

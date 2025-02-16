@@ -26,7 +26,7 @@ const ctx = createContext<ApplicationContext>({
   ctxVal2: randomUUID(),
 });
 
-const pinoLogger = pino.pino({
+const pinoLogger = pino({
   level: 'info', // anything below info will not be logged (by default)
 });
 

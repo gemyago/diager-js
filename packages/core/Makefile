@@ -4,7 +4,7 @@ eslint=../../node_modules/.bin/eslint
 tsc=../../node_modules/.bin/tsc
 jest=../../node_modules/.bin/jest
 
-clean_dist:
+clean:
 	rm -r -f dist
 
 dist/%: FORCE

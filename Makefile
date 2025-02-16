@@ -18,3 +18,8 @@ packages/%/test: FORCE
 	@echo "Running tests: $*"
 	@$(MAKE) -C packages/$* test
 test: $(patsubst %,packages/%/test,$(packages))
+
+packages/%/clean: FORCE
+	@echo "Cleaning: $*"
+	@$(MAKE) -C packages/$* clean
+clean: $(patsubst %,packages/%/clean,$(packages))

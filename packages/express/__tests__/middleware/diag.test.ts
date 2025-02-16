@@ -158,4 +158,53 @@ describe('diag-middleware', () => {
     });
     expect(res.status).toEqual(200);
   });
+
+  it('should set custom context values from configured headers', async () => {
+    const field1Name = Symbol(`field1-${faker.lorem.word()}`);
+    const field2Name = Symbol(`field2-${faker.lorem.word()}`);
+    const field3Name = Symbol(`field3-${faker.lorem.word()}`);
+
+    const field1Header = `X-${field1Name.description}-${faker.lorem.word()}`;
+    const field2Header = `X-${field2Name.description}-${faker.lorem.word()}`;
+    const field3Header = `X-${field3Name.description}-${faker.lorem.word()}`;
+
+    const field1Value = faker.lorem.word();
+    const field2Value = faker.lorem.word();
+    const field3Value = faker.lorem.word();
+
+    type CustomContextValues = ContextValues & {
+      [field1Name]: string,
+      [field2Name]: string,
+      [field3Name]: string,
+    };
+
+    const deps = createMockDeps<CustomContextValues>();
+    const middleware = createDiagMiddleware({
+      ...deps,
+      contextHeaders: {
+        [field1Header]: field1Name,
+        [field2Header]: field2Name,
+        [field3Header]: field3Name,
+      },
+    });
+
+    const { handlerContextValues, res } = await sendRequest({
+      deps,
+      middleware,
+      onRequest: (req) => {
+        req.set(field1Header, field1Value);
+        req.set(field2Header, field2Value);
+        req.set(field3Header, field3Value);
+      },
+    });
+
+    expect(handlerContextValues).toEqual({
+      correlationId: expect.anything(),
+      [field1Name]: field1Value,
+      [field2Name]: field2Value,
+      [field3Name]: field3Value,
+    });
+
+    expect(res.status).toEqual(200);
+  });
 });

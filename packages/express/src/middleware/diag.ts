@@ -1,4 +1,4 @@
-import { Context, ContextValues } from '@diager-js/core';
+import { Context, ContextValues, LogLevel } from '@diager-js/core';
 import { randomUUID } from 'crypto';
 import type { RequestHandler } from 'express';
 
@@ -25,7 +25,7 @@ export function createDiagMiddleware<
    * It will will generate a new correlationId as a last resort.
    *
    * If minLogLevel is not initialized after mapping headers, the values
-   * will be attempted to be taken from X-Min-Log-Level header. Invalid
+   * will be attempted to be taken from X-Log-Level header. Invalid
    * values will be discarded.
    */
   contextHeaders?: Record<string, keyof TContextValues>;
@@ -55,6 +55,11 @@ export function createDiagMiddleware<
     const nextContextValues = {
       correlationId: nextCorrelationId,
     } as Partial<TContextValues>;
+
+    const reqLogLevel = req.header('X-Log-Level')?.toString();
+    if (reqLogLevel !== undefined && reqLogLevel in LogLevel) {
+      nextContextValues.minLogLevel = reqLogLevel as LogLevel;
+    }
     context.child(nextContextValues, () => next());
   };
 }

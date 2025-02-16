@@ -1,8 +1,8 @@
 import express, { Application, ErrorRequestHandler, RequestHandler } from 'express';
-import { ContextValues, createContext } from '@diager-js/core';
+import { ContextValues, createContext, LogLevel } from '@diager-js/core';
 import { randomUUID } from 'crypto';
 import supertest from 'supertest';
-import TestAgent from 'supertest/lib/agent.js';
+import { faker } from '@faker-js/faker';
 import { createDiagMiddleware } from '../../src/middleware/diag.js';
 
 describe('diag-middleware', () => {
@@ -67,9 +67,12 @@ describe('diag-middleware', () => {
   it('should process the request and delegate to next', async () => {
     const deps = createMockDeps();
     const middleware = createDiagMiddleware(deps);
-    const { res, handlerCalled } = await sendRequest({ deps, middleware });
+    const { res, handlerCalled, handlerContextValues } = await sendRequest({ deps, middleware });
     expect(res.status).toEqual(200);
     expect(handlerCalled).toEqual(true);
+    expect(handlerContextValues).toEqual({
+      correlationId: expect.anything(),
+    });
   });
 
   it('should generate a new correlationId', async () => {
@@ -95,6 +98,31 @@ describe('diag-middleware', () => {
     });
     expect(handlerContextValues?.correlationId).toEqual(wantCorrelationId);
     expect(deps.context.values.correlationId).not.toEqual(wantCorrelationId);
+    expect(res.status).toEqual(200);
+  });
+
+  it('should set minLogLevel from X-Log-Level header', async () => {
+    const deps = createMockDeps();
+    const middleware = createDiagMiddleware(deps);
+    const wantLevel = faker.helpers.objectValue(LogLevel);
+    const { handlerContextValues, res } = await sendRequest({
+      deps,
+      middleware,
+      onRequest: (req) => req.set('X-Log-Level', wantLevel),
+    });
+    expect(handlerContextValues?.minLogLevel).toEqual(wantLevel);
+    expect(res.status).toEqual(200);
+  });
+
+  it('should ignore bad log level from X-Log-Level header', async () => {
+    const deps = createMockDeps();
+    const middleware = createDiagMiddleware(deps);
+    const { handlerContextValues, res } = await sendRequest({
+      deps,
+      middleware,
+      onRequest: (req) => req.set('X-Log-Level', faker.lorem.word()),
+    });
+    expect(handlerContextValues?.minLogLevel).toBeUndefined();
     expect(res.status).toEqual(200);
   });
 });

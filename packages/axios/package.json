@@ -1,0 +1,21 @@
+{
+  "name": "@diager-js/axios",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/cjs/src/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/src/index.d.ts",
+      "import": "./dist/esm/src/index.js",
+      "require": "./dist/cjs/src/index.js",
+      "default": "./dist/cjs/src/index.js"
+    }
+  },
+  "dependencies": {
+    "@diager-js/core": "^0.0.1"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.4.0",
+    "axios": "^1.7.9"
+  }
+}

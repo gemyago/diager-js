@@ -10,13 +10,13 @@ import {
 import { randomUUID } from 'crypto';
 import pino from 'pino';
 import {
-  formatUserAgent, createAxiosClientLogInterceptors, ModuleInfo, HttpTransportError,
+  formatProducerUserAgent, createAxiosClientLogInterceptors, ProducerInfo, HttpTransportError,
 } from '../src/client-log.js';
 
 describe('client-log', () => {
   function randomModuleInfo(
-    opts?: Partial<ModuleInfo>,
-  ): ModuleInfo {
+    opts?: Partial<ProducerInfo>,
+  ): ProducerInfo {
     return {
       name: faker.commerce.productName(),
       version: faker.system.semver(),
@@ -24,14 +24,14 @@ describe('client-log', () => {
     };
   }
 
-  describe('formatUserAgent', () => {
+  describe('formatProducerUserAgent', () => {
     afterEach(() => {
       delete process.env.GCP_PROJECT;
     });
 
     it('should build user agent', () => {
       const moduleInfo = randomModuleInfo();
-      expect(formatUserAgent(moduleInfo))
+      expect(formatProducerUserAgent(moduleInfo))
         .toEqual(`${moduleInfo.name}/${moduleInfo.version} node/${process.version}`);
     });
 
@@ -42,7 +42,7 @@ describe('client-log', () => {
           key2: faker.lorem.word(),
         },
       });
-      expect(formatUserAgent(moduleInfo))
+      expect(formatProducerUserAgent(moduleInfo))
         .toEqual(`${moduleInfo.name}/${moduleInfo.version} node/${process.version} (key1=${moduleInfo.meta?.key1}; key2=${moduleInfo.meta?.key2})`);
     });
   });
@@ -166,7 +166,7 @@ describe('client-log', () => {
       const baseURL = `http://localhost:${address.port}`;
       const client = axios.create({ baseURL });
       createAxiosClientLogInterceptors({
-        userAgent: formatUserAgent(randomModuleInfo()),
+        userAgent: formatProducerUserAgent(randomModuleInfo()),
         logger: mockLogger.logger,
         context: createContext({ correlationId: randomUUID() }),
         logLevel: 'debug',
@@ -201,7 +201,7 @@ describe('client-log', () => {
       const baseURL = `http://localhost:${address.port}`;
       const client = axios.create({ baseURL });
       createAxiosClientLogInterceptors({
-        userAgent: formatUserAgent(randomModuleInfo()),
+        userAgent: formatProducerUserAgent(randomModuleInfo()),
         logger: mockLogger.logger,
         context: createContext({ correlationId: randomUUID() }),
       }).attachTo(client);
@@ -326,7 +326,7 @@ describe('client-log', () => {
         },
       });
       createAxiosClientLogInterceptors({
-        userAgent: formatUserAgent(randomModuleInfo()),
+        userAgent: formatProducerUserAgent(randomModuleInfo()),
         logger: mockLogger.logger,
         context: createContext({ correlationId: randomUUID() }),
       }).attachTo(client);
@@ -368,7 +368,7 @@ describe('client-log', () => {
       const baseURL = `http://localhost:${address.port}`;
       const client = axios.create({ baseURL });
       createAxiosClientLogInterceptors({
-        userAgent: formatUserAgent(randomModuleInfo()),
+        userAgent: formatProducerUserAgent(randomModuleInfo()),
         logger: mockLogger.logger,
         context: createContext({ correlationId: randomUUID() }),
       }).attachTo(client);
@@ -408,7 +408,7 @@ describe('client-log', () => {
       const baseURL = `http://localhost:${address.port}`;
       const client = axios.create({ baseURL });
       createAxiosClientLogInterceptors({
-        userAgent: formatUserAgent(randomModuleInfo()),
+        userAgent: formatProducerUserAgent(randomModuleInfo()),
         logger: mockLogger.logger,
         context: createContext({ correlationId: randomUUID() }),
       }).attachTo(client);
@@ -445,7 +445,7 @@ describe('client-log', () => {
         responseType: 'stream',
       });
       createAxiosClientLogInterceptors({
-        userAgent: formatUserAgent(randomModuleInfo()),
+        userAgent: formatProducerUserAgent(randomModuleInfo()),
         logger: mockLogger.logger,
         context: createContext({ correlationId: randomUUID() }),
       }).attachTo(client);
@@ -479,7 +479,7 @@ describe('client-log', () => {
       const baseURL = `http://localhost:${address.port}`;
       const client = axios.create({ baseURL });
       createAxiosClientLogInterceptors({
-        userAgent: formatUserAgent(randomModuleInfo()),
+        userAgent: formatProducerUserAgent(randomModuleInfo()),
         logger: mockLogger.logger,
         context: createContext({ correlationId: randomUUID() }),
       }).attachTo(client);
@@ -531,7 +531,7 @@ describe('client-log', () => {
       const baseURL = `http://localhost:${address.port}`;
       const client = axios.create({ baseURL });
       createAxiosClientLogInterceptors({
-        userAgent: formatUserAgent(randomModuleInfo()),
+        userAgent: formatProducerUserAgent(randomModuleInfo()),
         logger: mockLogger.logger,
         context: createContext({ correlationId: randomUUID() }),
       }).attachTo(client);
@@ -560,7 +560,7 @@ describe('client-log', () => {
         const baseURL = `http://localhost:${address.port}`;
         const client = axios.create({ baseURL });
         createAxiosClientLogInterceptors({
-          userAgent: formatUserAgent(randomModuleInfo()),
+          userAgent: formatProducerUserAgent(randomModuleInfo()),
           logger: mockLogger.logger,
           context,
         }).attachTo(client);

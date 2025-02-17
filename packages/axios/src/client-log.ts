@@ -8,7 +8,7 @@ import { EventEmitter, Readable } from 'stream';
 
 type LogLevel = 'error' | 'warn' | 'info' | 'debug' | 'trace';
 
-export interface ModuleInfo {
+export interface ProducerInfo {
   name: string
   version: string
   meta?: Record<string, string>
@@ -26,9 +26,12 @@ export interface AxiosClientLogInterceptors {
   attachTo(instance: AxiosInstance): void;
 }
 
-export function formatUserAgent(moduleInfo: ModuleInfo): string {
-  const meta = moduleInfo.meta ? ` (${Object.entries(moduleInfo.meta).map(([k, v]) => `${k}=${v}`).join('; ')})` : '';
-  return `${moduleInfo.name}/${moduleInfo.version} node/${process.version}${meta}`;
+/**
+ * Format user agent string that allows identifying producer of the request.
+ */
+export function formatProducerUserAgent(producer: ProducerInfo): string {
+  const meta = producer.meta ? ` (${Object.entries(producer.meta).map(([k, v]) => `${k}=${v}`).join('; ')})` : '';
+  return `${producer.name}/${producer.version} node/${process.version}${meta}`;
 }
 
 function dumpResponseData(target?: unknown | { read: () => unknown }) {

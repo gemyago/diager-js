@@ -6,13 +6,12 @@
  *
  * Please setup project as per README.md before running this example.
  * Once ready you can run this example using following command:
- * ./packages/core/examples/basic.ts | pino-pretty
+ * ./packages/examples/src/logging-basic.ts | pino-pretty
  */
 
+import { ContextValues, createContext, createRootPinoLogger } from '@diager-js/core';
 import { randomUUID } from 'crypto';
 import pino from 'pino'; // eslint-disable-line import/no-extraneous-dependencies -- dev dependency used to only run example
-import { ContextValues, createContext } from '../src/context.js';
-import { createRootPinoLogger } from '../src/pino-adapter.js';
 
 type ApplicationContext = ContextValues & {
   // Application specific context values.
@@ -26,13 +25,11 @@ const ctx = createContext<ApplicationContext>({
   ctxVal2: randomUUID(),
 });
 
-const pinoLogger = pino({
-  level: 'info', // anything below info will not be logged (by default)
-});
-
 const logger = createRootPinoLogger({
   context: ctx,
-  pinoLogger,
+  pinoLogger: pino.pino({
+    level: 'info', // anything below info will not be logged (by default)
+  }),
 });
 
 // All log messages below will have root context values

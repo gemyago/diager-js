@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.base.json",
+  "references": [
+    { "path": "../core/tsconfig.cjs.json" }
+  ],
+  "compilerOptions": {
+    "target": "ES2018",
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "outDir": "dist/cjs",
+  }
+}

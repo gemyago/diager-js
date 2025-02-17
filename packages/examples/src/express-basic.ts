@@ -5,14 +5,13 @@ import { randomUUID } from 'crypto';
 import express, { ErrorRequestHandler, Request, Response } from 'express';
 import pino from 'pino';
 import { createServer, RequestListener } from 'http';
-import { createDiagMiddleware } from '../src/middleware/diag.js';
-import { createAccessLogMiddleware } from '../src/middleware/access-log.js';
+import { createAccessLogMiddleware, createDiagMiddleware } from '@diager-js/express/middleware';
 
 /**
- * This example demonstrate usage of diag middleware in combination with logger and diag context.
+ * This example demonstrates usage of diag middleware in combination with logger and diag context.
  * Please setup project as per README.md before running this example.
  * To run the example, execute the following command:
- * ./packages/express/examples/basic.ts | pino-pretty
+ * ./packages/examples/src/express-basic.ts | pino-pretty
  *
  * Run the below in a separate terminal. You should see logs with info level only.
  * curl localhost:3000/pets
@@ -57,7 +56,7 @@ function setupExpress() {
   const diagCtx = createContext({ correlationId: randomUUID() });
   const rootLogger = createRootPinoLogger({
     context: diagCtx,
-    pinoLogger: pino({ level: 'info' }), // doing info to demonstrate X-Log-Level
+    pinoLogger: pino.pino({ level: 'info' }), // doing info to demonstrate X-Log-Level
   });
 
   const petsController = createPetsController({ rootLogger });

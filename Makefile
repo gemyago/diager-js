@@ -1,6 +1,11 @@
 .PHONY: dist lint
 
-packages = $(patsubst packages/%,%,$(wildcard packages/*))
+# We could collect packages automatically,
+# but we need to keep the order, so hardcoding for now.
+# Below snippet can be used to collect automatically:
+# $(patsubst packages/%,%,$(wildcard packages/*))
+# But some magic would be required to keep the order.
+packages = core express axios examples
 
 .PHONY: FORCE
 

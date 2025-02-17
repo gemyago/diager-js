@@ -1,0 +1,4 @@
+{
+  // ESM is considered default
+  "extends": "./tsconfig.esm.json"
+}

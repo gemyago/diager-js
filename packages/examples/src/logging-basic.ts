@@ -25,13 +25,11 @@ const ctx = createContext<ApplicationContext>({
   ctxVal2: randomUUID(),
 });
 
-const pinoLogger = pino.pino({
-  level: 'info', // anything below info will not be logged (by default)
-});
-
 const logger = createRootPinoLogger({
   context: ctx,
-  pinoLogger,
+  pinoLogger: pino.pino({
+    level: 'info', // anything below info will not be logged (by default)
+  }),
 });
 
 // All log messages below will have root context values

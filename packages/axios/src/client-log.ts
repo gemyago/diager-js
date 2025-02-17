@@ -4,7 +4,8 @@ import type {
   AxiosInstance,
   AxiosResponse,
 } from 'axios';
-import { EventEmitter, Readable } from 'stream';
+import EventEmitter from 'events';
+import { Readable } from 'stream';
 
 type LogLevel = 'error' | 'warn' | 'info' | 'debug' | 'trace';
 

@@ -8,7 +8,7 @@ import { randomUUID } from 'crypto';
 import pino from 'pino';
 
 /**
- * This example demonstrate usage of axios client log interceptors.
+ * This example demonstrates usage of axios client log interceptors.
  * Please setup project as per README.md before running this example.
  * Start express-basic example first:
  * ./packages/examples/src/express-basic.ts | pino-pretty

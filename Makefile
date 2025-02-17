@@ -5,7 +5,7 @@
 # Below snippet can be used to collect automatically:
 # $(patsubst packages/%,%,$(wildcard packages/*))
 # But some magic would be required to keep the order.
-packages = core express axios
+packages = core express axios examples
 
 .PHONY: FORCE
 

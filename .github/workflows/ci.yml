@@ -1,0 +1,35 @@
+# Continuous Integration Workflow for diager-js
+
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js from .nvmrc
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install dependencies in all packages
+        run: |
+          npm ci -ws --include-workspace-roo
+
+      - name: Lint
+        run: make lint
+
+      - name: Test
+        run: make test

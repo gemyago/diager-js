@@ -6,8 +6,6 @@ on:
   pull_request:
     branches:
       - main
-      - master
-      - develop
 
 jobs:
   build:
@@ -21,12 +19,9 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      - name: Install root dependencies
-        run: npm ci
-
       - name: Install dependencies in all packages
         run: |
-          npm ci -ws --include-workspace-roo
+          npm ci -ws --include-workspace-root
 
       - name: Lint
         run: make lint

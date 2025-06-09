@@ -1,6 +1,4 @@
-import {
-  Logger, LogLevel,
-} from '@diager-js/core';
+import { Logger, LogLevel } from '@diager-js/core';
 import type { RequestHandler } from 'express';
 
 const nanoSecInMs = BigInt(1e6);
@@ -17,30 +15,26 @@ export function createAccessLogMiddleware(opts: {
   /**
    * Logger instance that will be used to log http access events.
    */
-  logger: Logger,
+  logger: Logger;
 
   /**
    * Log level that should be used to write http access logs.
    * Default: 'info'
    */
-  logLevel?: LogLevel
+  logLevel?: LogLevel;
 
   /**
    * List of headers that should be obfuscated in the logs.
    * Default: ['Authorization', 'Proxy-Authorization']
    * */
-  obfuscateHeaders?: string[],
+  obfuscateHeaders?: string[];
 
   /**
    * List of paths that should be ignored from the logs.
    */
-  ignorePaths?: string[],
-}) : RequestHandler {
-  const {
-    logger,
-    logLevel = 'info',
-    ignorePaths = [],
-  } = opts;
+  ignorePaths?: string[];
+}): RequestHandler {
+  const { logger, logLevel = 'info', ignorePaths = [] } = opts;
 
   // TODO: Support obfuscation of headers
   // TODO: Allow configuring single log entry (e.g combined start + end)
@@ -70,7 +64,10 @@ export function createAccessLogMiddleware(opts: {
       };
 
       const endLogData = logger.withData(endProcessingData);
-      endLogData.write(logLevel, `END_PROCESSING_REQ: ${res.statusCode} - ${req.path}`);
+      endLogData.write(
+        logLevel,
+        `END_PROCESSING_REQ: ${res.statusCode} - ${req.path}`,
+      );
     });
     next();
   };

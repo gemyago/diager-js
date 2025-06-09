@@ -1,5 +1,8 @@
 import express, {
-  ErrorRequestHandler, Request, Response, RequestHandler,
+  ErrorRequestHandler,
+  Request,
+  Response,
+  RequestHandler,
 } from 'express';
 import supertest from 'supertest';
 import { createContext, createRootPinoLogger } from '@diager-js/core';
@@ -48,10 +51,10 @@ describe('access-log-middleware', () => {
   }
 
   async function sendRequest(params: {
-    middleware: RequestHandler,
-    onRequest?: (req: supertest.Test) => void,
-    onHandler?: (req: Request, res: Response) => void,
-    requestPath?: string,
+    middleware: RequestHandler;
+    onRequest?: (req: supertest.Test) => void;
+    onHandler?: (req: Request, res: Response) => void;
+    requestPath?: string;
   }) {
     const { middleware } = params;
     let handlerCalled = false;
@@ -89,12 +92,16 @@ describe('access-log-middleware', () => {
     expect(res.status).toEqual(200);
     expect(logEntries.length).toEqual(2);
     const [beginReqLog, endReqLog] = logEntries;
-    expect(beginReqLog).toEqual(expect.objectContaining({
-      msg: `START_PROCESSING_REQ: GET ${wantPath}`,
-    }));
-    expect(endReqLog).toEqual(expect.objectContaining({
-      msg: `END_PROCESSING_REQ: 200 - ${wantPath}`,
-    }));
+    expect(beginReqLog).toEqual(
+      expect.objectContaining({
+        msg: `START_PROCESSING_REQ: GET ${wantPath}`,
+      }),
+    );
+    expect(endReqLog).toEqual(
+      expect.objectContaining({
+        msg: `END_PROCESSING_REQ: 200 - ${wantPath}`,
+      }),
+    );
   });
 
   it('should handle end req status', async () => {
@@ -110,9 +117,11 @@ describe('access-log-middleware', () => {
     expect(res.status).toEqual(wantStatus);
     expect(logEntries.length).toEqual(2);
     const [, endReqLog] = logEntries;
-    expect(endReqLog).toEqual(expect.objectContaining({
-      msg: `END_PROCESSING_REQ: ${wantStatus} - /something`,
-    }));
+    expect(endReqLog).toEqual(
+      expect.objectContaining({
+        msg: `END_PROCESSING_REQ: ${wantStatus} - /something`,
+      }),
+    );
   });
 
   it('should include request details', async () => {
@@ -137,14 +146,16 @@ describe('access-log-middleware', () => {
 
     expect(logEntries.length).toEqual(2);
     const [beginReqLog] = logEntries;
-    expect(beginReqLog).toEqual(expect.objectContaining({
-      data: expect.objectContaining({
-        method: 'GET',
-        url: `/something?${searchParams.toString()}`,
-        headers: expect.objectContaining(headers),
-        query: expect.objectContaining(query),
+    expect(beginReqLog).toEqual(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          method: 'GET',
+          url: `/something?${searchParams.toString()}`,
+          headers: expect.objectContaining(headers),
+          query: expect.objectContaining(query),
+        }),
       }),
-    }));
+    );
   });
 
   it('should include response details', async () => {
@@ -166,13 +177,15 @@ describe('access-log-middleware', () => {
 
     expect(logEntries.length).toEqual(2);
     const [, endReqLog] = logEntries;
-    expect(endReqLog).toEqual(expect.objectContaining({
-      data: expect.objectContaining({
-        statusCode,
-        headers: expect.objectContaining(headers),
-        durationMs: expect.any(Number),
+    expect(endReqLog).toEqual(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          statusCode,
+          headers: expect.objectContaining(headers),
+          durationMs: expect.any(Number),
+        }),
       }),
-    }));
+    );
   });
 
   it('should ignore paths', async () => {

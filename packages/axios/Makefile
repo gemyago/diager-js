@@ -13,7 +13,10 @@ dist/%: FORCE
 dist: clean dist/esm dist/cjs FORCE
 
 lint:
-	$(eslint) . --ext .js,.jsx,.ts,.tsx
+	$(eslint) . --ext .js,.jsx,.ts,.tsx --max-warnings 0
 
 test:
 	$(jest) --coverage
+
+publish:
+	npm publish --access public

@@ -20,7 +20,7 @@ To get started, run:
 direanv allow
 
 # Install dependencies
-npm i
+npm i -ws
 
 # Build the project
 make dist

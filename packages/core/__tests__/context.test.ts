@@ -3,9 +3,9 @@ import { ContextValues, createContext } from '../src/context.js';
 
 describe('context', () => {
   type TestContextValues = ContextValues & {
-    field1: string
-    field2: string
-  }
+    field1: string;
+    field2: string;
+  };
 
   function randomContextValues(): TestContextValues {
     return {

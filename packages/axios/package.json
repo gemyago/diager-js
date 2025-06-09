@@ -15,8 +15,11 @@
     "@diager-js/core": "^0.0.1"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.4.0",
-    "axios": "^1.7.9",
-    "pino": "^9.6.0"
-  }
+    "@faker-js/faker": "^9.8.0",
+    "axios": "^1.9.0",
+    "pino": "^9.7.0"
+  },
+  "files": [
+    "dist"
+  ]
 }

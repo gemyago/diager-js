@@ -2,7 +2,10 @@ import { Context, ContextValues, LogLevel } from '@diager-js/core';
 import { randomUUID } from 'crypto';
 import type { RequestHandler } from 'express';
 
-type ParsedField<T> = { field: keyof T, parse: (value: string) => T[keyof T] | undefined };
+type ParsedField<T> = {
+  field: keyof T;
+  parse: (value: string) => T[keyof T] | undefined;
+};
 
 type StringOrParsedFields<T> = {
   [K in keyof T]: T[K] extends string ? K | ParsedField<T> : ParsedField<T>;
@@ -16,7 +19,7 @@ type StringOrParsedFields<T> = {
  * should usually be very first in the middleware chain.
  */
 export function createDiagMiddleware<
-  TContextValues extends ContextValues
+  TContextValues extends ContextValues,
 >(deps: {
   /**
    * Instance of the diagnostic context associated with the middleware.
@@ -65,13 +68,10 @@ export function createDiagMiddleware<
   ) {
     if (fieldValue !== undefined) {
       if (typeof fieldName === 'object' && 'field' in fieldName) {
-        // eslint-disable-next-line no-param-reassign -- doing it otherwise would be more complex
         nextContextValues[fieldName.field] = fieldName.parse(fieldValue);
       } else {
-        // eslint-disable-next-line no-param-reassign -- doing it otherwise would be more complex
-        nextContextValues[
-          fieldName as keyof TVals
-        ] = fieldValue as TVals[keyof TVals];
+        nextContextValues[fieldName as keyof TVals] =
+          fieldValue as TVals[keyof TVals];
       }
     }
   }
@@ -82,7 +82,11 @@ export function createDiagMiddleware<
   return (req, res, next) => {
     const nextContextValues = {} as Partial<TContextValues>;
     for (const [header, contextField] of contextHeadersEntries) {
-      assignContextValue(nextContextValues, contextField, req.header(header)?.toString());
+      assignContextValue(
+        nextContextValues,
+        contextField,
+        req.header(header)?.toString(),
+      );
     }
 
     for (const [param, contextField] of contextParamsEntries) {
@@ -109,7 +113,10 @@ export function createDiagMiddleware<
     }
 
     // Strip bad log level values
-    if (nextContextValues.minLogLevel && !(nextContextValues.minLogLevel in LogLevel)) {
+    if (
+      nextContextValues.minLogLevel &&
+      !(nextContextValues.minLogLevel in LogLevel)
+    ) {
       delete nextContextValues.minLogLevel;
     }
     context.child(nextContextValues, () => next());

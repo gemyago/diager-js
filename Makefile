@@ -28,3 +28,9 @@ packages/%/clean: FORCE
 	@echo "Cleaning: $*"
 	@$(MAKE) -C packages/$* clean
 clean: $(patsubst %,packages/%/clean,$(packages))
+
+
+packages/%/publish: FORCE
+	@echo "Publishing: $*"
+	@$(MAKE) -C packages/$* publish
+publish: $(patsubst %,packages/%/publish,$(packages))

@@ -1,0 +1,59 @@
+name: Publish Flow
+
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version to publish (e.g., v1.0.0)'
+        required: true
+        type: string
+      pr_number:
+        description: 'The PR number that triggered the release'
+        required: false
+        type: string
+
+# Add permissions at workflow level with all necessary scopes
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+  issues: write
+  statuses: write
+
+jobs:
+  extract-version:
+    # Only run for PR events if PR was merged and is from a release branch
+    if: |
+      github.event_name == 'workflow_dispatch' || 
+      (github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/'))
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract.outputs.version }}
+      pr_number: ${{ steps.extract.outputs.pr_number }}
+    
+    steps:
+      - name: Extract version and PR info
+        id: extract
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+            echo "pr_number=${{ inputs.pr_number }}" >> $GITHUB_OUTPUT
+            echo "Manual trigger - Version: ${{ inputs.version }}, PR: ${{ inputs.pr_number }}"
+          else
+            BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+            VERSION="${BRANCH_NAME#release/}"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+            echo "PR trigger - Extracted version: $VERSION, PR: ${{ github.event.pull_request.number }}"
+          fi
+
+  publish:
+    needs: extract-version
+    uses: ./.github/workflows/publish-release.yml
+    with:
+      version: ${{ needs.extract-version.outputs.version }}
+      pr_number: ${{ needs.extract-version.outputs.pr_number }}
+    secrets: inherit

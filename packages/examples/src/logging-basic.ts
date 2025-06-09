@@ -9,15 +9,19 @@
  * ./packages/examples/src/logging-basic.ts | pino-pretty
  */
 
-import { ContextValues, createContext, createRootPinoLogger } from '@diager-js/core';
+import {
+  ContextValues,
+  createContext,
+  createRootPinoLogger,
+} from '@diager-js/core';
 import { randomUUID } from 'crypto';
-import pino from 'pino'; // eslint-disable-line import/no-extraneous-dependencies -- dev dependency used to only run example
+import pino from 'pino';
 
 type ApplicationContext = ContextValues & {
   // Application specific context values.
-  ctxVal1: string
-  ctxVal2: string
-}
+  ctxVal1: string;
+  ctxVal2: string;
+};
 
 const ctx = createContext<ApplicationContext>({
   correlationId: randomUUID(),
@@ -34,7 +38,9 @@ const logger = createRootPinoLogger({
 
 // All log messages below will have root context values
 logger.info('Log message with toplevel context');
-logger.withData({ key: 'value' }).info('Log message with toplevel context and data');
+logger
+  .withData({ key: 'value' })
+  .info('Log message with toplevel context and data');
 logger
   .withError(new Error('Example error'))
   .withData({ key: 'value' })
@@ -43,7 +49,9 @@ logger
 // All log messages below have root context values with additional/overridden child context values
 ctx.child({ correlationId: randomUUID() }, () => {
   logger.info('Log message with child context');
-  logger.withData({ key: 'value' }).info('Log message with child context and data');
+  logger
+    .withData({ key: 'value' })
+    .info('Log message with child context and data');
   logger
     .withError(new Error('Example error'))
     .withData({ key: 'value' })

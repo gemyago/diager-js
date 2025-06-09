@@ -4,7 +4,7 @@ This document outlines the step-by-step plan to add CI/CD to this project using 
 
 ## [x] 1. Set up GitHub Actions workflows
 1. [x] Create `.github/workflows/ci.yml` for continuous integration (CI).
-2. [ ] Create `.github/workflows/release.yml` for release automation.
+2. [x] Create `.github/workflows/release.yml` for release automation.
 
 ## [x] 2. Continuous Integration (CI) Workflow
 1. [x] Trigger on pull request creation to main branches.
@@ -13,14 +13,14 @@ This document outlines the step-by-step plan to add CI/CD to this project using 
 4. [x] Run `make lint` to check code style and quality.
 5. [x] Run `make test` to execute all tests.
 
-## [ ] 3. Manually Triggered Release Preparation Workflow
-1. [ ] Create a workflow (`release.yml`) with `workflow_dispatch` trigger.
-2. [ ] Accept inputs: `version` (string), `prerelease` (boolean).
-3. [ ] On trigger:
-    1. [ ] Update version in all relevant `package.json` files.
-    2. [ ] Commit and push changes to a new branch (e.g., `release/v{version}`).
-    3. [ ] Create a pull request from the release branch to the main branch.
-    4. [ ] Create a draft GitHub release for the new version, mark as pre-release if specified.
+## [x] 3. Manually Triggered Release Preparation Workflow
+1. [x] Create a workflow (`release.yml`) with `workflow_dispatch` trigger.
+2. [x] Accept inputs: `version` (string), `prerelease` (boolean).
+3. [x] On trigger:
+    1. [x] Update version in all relevant `package.json` files.
+    2. [x] Commit and push changes to a new branch (e.g., `release/v{version}`).
+    3. [x] Create a pull request from the release branch to the main branch.
+    4. [x] Create a draft GitHub release for the new version, mark as pre-release if specified.
 
 ## [ ] 4. Release Publishing Workflow
 1. [ ] Trigger on merge of a release PR to the main branch.

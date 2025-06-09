@@ -23,6 +23,9 @@ jobs:
         run: |
           npm ci -ws --include-workspace-root
 
+      - name: Build
+        run: make dist
+
       - name: Lint
         run: make lint
 

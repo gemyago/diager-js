@@ -1,22 +1,27 @@
 name: Publish Release
 
 on:
-  pull_request:
-    branches: [main]
-    types: [closed]
+  workflow_call:
+    inputs:
+      version:
+        description: 'The version to publish (e.g., v1.0.0)'
+        required: true
+        type: string
+      pr_number:
+        description: 'The PR number that triggered the release'
+        required: false
+        type: string
 
 # Add permissions at workflow level with all necessary scopes
 permissions:
   contents: write
   packages: write
-  pull-requests: read
+  pull-requests: write
   issues: write
   statuses: write
 
 jobs:
   publish-release:
-    # Only run if PR was merged and is from a release branch
-    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
     runs-on: ubuntu-latest
     
     steps:
@@ -32,21 +37,12 @@ jobs:
           app-id: ${{ vars.BOT_APP_ID }}
           private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
 
-      - name: Extract version from branch name
-        id: extract-version
-        run: |
-          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
-          VERSION="${BRANCH_NAME#release/}"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Extracted version: $VERSION"
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@${{ github.repository_owner }}'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: |
@@ -56,71 +52,32 @@ jobs:
         run: |
           make dist
 
-      - name: Configure npm for GitHub Packages
+      - name: Configure npm for npm registry
         run: |
-          echo "@${{ github.repository_owner }}:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
 
-      - name: Publish packages to GitHub Packages
+      - name: Publish packages to npm registry
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          echo "Publishing packages to GitHub Packages registry..."
-          
-          # Function to publish a package if it exists and has been built
-          publish_package() {
-            local package_dir="$1"
-            if [ -f "$package_dir/package.json" ] && [ -d "$package_dir/dist" ]; then
-              echo "Publishing package in $package_dir"
-              cd "$package_dir"
-              
-              # Check if package is already published at this version
-              PACKAGE_NAME=$(node -p "require('./package.json').name")
-              PACKAGE_VERSION=$(node -p "require('./package.json').version")
-              
-              if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
-                echo "Package $PACKAGE_NAME@$PACKAGE_VERSION already exists, skipping..."
-              else
-                npm publish --registry=https://npm.pkg.github.com
-                echo "Successfully published $PACKAGE_NAME@$PACKAGE_VERSION"
-              fi
-              
-              cd - > /dev/null
-            else
-              echo "Skipping $package_dir - no package.json or dist directory found"
-            fi
-          }
-          
-          # Publish all packages
-          for package_dir in packages/*/; do
-            # Skip examples package
-            if [[ "$package_dir" != *"/examples/"* ]]; then
-              publish_package "$package_dir"
-            fi
-          done
+          echo "Publishing packages to npm registry..."
+          make publish
 
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ steps.bot-app-token.outputs.token }}
         run: |
-          echo "Publishing draft release $VERSION"
+          echo "Publishing draft release ${{ inputs.version }}"
           
           # Update the release to remove draft status
-          gh release edit "$VERSION" --draft=false
+          gh release edit "${{ inputs.version }}" --draft=false
           
-          echo "Successfully published release $VERSION"
+          echo "Successfully published release ${{ inputs.version }}"
 
       - name: Add release comment to PR
+        if: inputs.pr_number != ''
         env:
           GH_TOKEN: ${{ steps.bot-app-token.outputs.token }}
         run: |
-          RELEASE_URL=$(gh release view "$VERSION" --json url --jq '.url')
-          gh pr comment ${{ github.event.pull_request.number }} --body "🚀 Release published: $RELEASE_URL
-
-          **Packages published to GitHub Packages:**
-          $(for package_dir in packages/*/; do
-            if [ -f "$package_dir/package.json" ] && [[ "$package_dir" != *"/examples/"* ]]; then
-              PACKAGE_NAME=$(node -p "require('./$package_dir/package.json').name")
-              echo "- \`$PACKAGE_NAME@$VERSION\`"
-            fi
-          done)"
+          RELEASE_URL=$(gh release view "${{ inputs.version }}" --json url --jq '.url')
+          gh pr comment ${{ inputs.pr_number }} --body "🚀 Release published: $RELEASE_URL"

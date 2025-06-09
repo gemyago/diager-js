@@ -11,7 +11,7 @@ dist: FORCE
 	$(tsc) -p tsconfig.json
 
 lint:
-	$(eslint) . --ext .js,.jsx,.ts,.tsx
+	$(eslint) . --ext .js,.jsx,.ts,.tsx --max-warnings 0
 
 test:
 	@echo No tests here

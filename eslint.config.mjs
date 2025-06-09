@@ -3,6 +3,7 @@ import tseslint from 'typescript-eslint';
 import importPlugin from 'eslint-plugin-import';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import jestPlugin from 'eslint-plugin-jest';
 
 export default tseslint.config([
   js.configs.recommended,
@@ -52,6 +53,12 @@ export default tseslint.config([
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-shadow': 'error',
     },
+  },
+
+  // Tests
+  {
+    files: ['**/*.test.{js,ts,tsx}', '**/*.spec.{js,ts,tsx}'],
+    ...jestPlugin.configs['flat/recommended'],
   },
 
   // Ignores

@@ -22,11 +22,11 @@ This document outlines the step-by-step plan to add CI/CD to this project using 
     3. [x] Create a pull request from the release branch to the main branch.
     4. [x] Create a draft GitHub release for the new version, mark as pre-release if specified.
 
-## [ ] 4. Release Publishing Workflow
-1. [ ] Trigger on merge of a release PR to the main branch.
-2. [ ] Build all packages (`make dist`).
-3. [ ] Publish all packages to GitHub Packages registry (ensure authentication is set up).
-4. [ ] Publish the GitHub release (remove draft status, add release notes if available).
+## [x] 4. Release Publishing Workflow
+1. [x] Trigger on merge of a release PR to the main branch.
+2. [x] Build all packages (`make dist`).
+3. [x] Publish all packages to GitHub Packages registry (ensure authentication is set up).
+4. [x] Publish the GitHub release (remove draft status, add release notes if available).
 
 ## [ ] 5. Additional Steps
 1. [ ] Add required secrets to GitHub repository (e.g., `NPM_TOKEN`, `GH_TOKEN`).

@@ -3,17 +3,18 @@ import type { Context, ContextValues } from './context.js';
 import { LogData, Logger, LogLevel } from './logger.js';
 
 // Minimal pino logger interface that is needed to create a logger.
-type PinoLogger = Pick<pino.Logger,
-  'child' |
-  'level' |
-  'levelVal' |
-  'error' |
-  'warn' |
-  'info' |
-  'debug' |
-  'trace' |
-  'isLevelEnabled' |
-  'levels'
+type PinoLogger = Pick<
+  pino.Logger,
+  | 'child'
+  | 'level'
+  | 'levelVal'
+  | 'error'
+  | 'warn'
+  | 'info'
+  | 'debug'
+  | 'trace'
+  | 'isLevelEnabled'
+  | 'levels'
 >;
 
 /**
@@ -135,5 +136,10 @@ export function createRootPinoLogger(opts: {
    */
   pinoLogger: PinoLogger;
 }): Logger {
-  return new PinoLoggerAdapter(opts.pinoLogger, opts.context, opts.pinoLogger.levelVal, true);
+  return new PinoLoggerAdapter(
+    opts.pinoLogger,
+    opts.context,
+    opts.pinoLogger.levelVal,
+    true,
+  );
 }

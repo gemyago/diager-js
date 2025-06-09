@@ -8,7 +8,7 @@ import { createDiagMiddleware } from '../../src/middleware/diag.js';
 describe('diag-middleware', () => {
   // has to have 4 arguments
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const errorHandler : ErrorRequestHandler = (err, req, res, next) => {
+  const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     res.status(500).send({
       error: err.message,
       stack: err.stack,
@@ -17,21 +17,25 @@ describe('diag-middleware', () => {
 
   type Deps<TContextValues extends ContextValues> = Parameters<
     typeof createDiagMiddleware<TContextValues>
-  >[0]
+  >[0];
   function createMockDeps<TContextValues extends ContextValues>() {
     return {
-      context: createContext({ correlationId: randomUUID() }) as Deps<TContextValues>['context'],
-      uuidFn: jest.fn(randomUUID) as NonNullable<Deps<TContextValues>['uuidFn']>,
+      context: createContext({
+        correlationId: randomUUID(),
+      }) as Deps<TContextValues>['context'],
+      uuidFn: jest.fn(randomUUID) as NonNullable<
+        Deps<TContextValues>['uuidFn']
+      >,
     };
   }
 
   async function sendRequest<TContextValues extends ContextValues>(params: {
-    deps: Deps<TContextValues>,
-    middleware: RequestHandler,
-    onRequest?: (req: supertest.Test) => void,
-    middlewarePath?: string,
-    routePath?: string,
-    requestPath?: string,
+    deps: Deps<TContextValues>;
+    middleware: RequestHandler;
+    onRequest?: (req: supertest.Test) => void;
+    middlewarePath?: string;
+    routePath?: string;
+    requestPath?: string;
   }) {
     const { deps, middleware } = params;
     let handlerCalled = false;
@@ -65,7 +69,10 @@ describe('diag-middleware', () => {
   it('should process the request and delegate to next', async () => {
     const deps = createMockDeps();
     const middleware = createDiagMiddleware({ context: deps.context });
-    const { res, handlerCalled, handlerContextValues } = await sendRequest({ deps, middleware });
+    const { res, handlerCalled, handlerContextValues } = await sendRequest({
+      deps,
+      middleware,
+    });
     expect(res.status).toEqual(200);
     expect(handlerCalled).toEqual(true);
     expect(handlerContextValues).toEqual({
@@ -78,26 +85,32 @@ describe('diag-middleware', () => {
     const deps = createMockDeps();
     jest.mocked(deps.uuidFn).mockReturnValueOnce(wantCorrelationId);
     const middleware = createDiagMiddleware(deps);
-    const { handlerContextValues, res } = await sendRequest({ deps, middleware });
+    const { handlerContextValues, res } = await sendRequest({
+      deps,
+      middleware,
+    });
     expect(handlerContextValues?.correlationId).toEqual(wantCorrelationId);
     expect(deps.context.values.correlationId).not.toEqual(wantCorrelationId);
     expect(res.status).toEqual(200);
     expect(deps.uuidFn).toHaveBeenCalledTimes(1);
   });
 
-  it.each(['X-Correlation-ID', 'X-Request-ID'])('should take correlationId from %s header', async (header) => {
-    const wantCorrelationId = randomUUID();
-    const deps = createMockDeps();
-    const middleware = createDiagMiddleware(deps);
-    const { handlerContextValues, res } = await sendRequest({
-      deps,
-      middleware,
-      onRequest: (req) => req.set(header, wantCorrelationId),
-    });
-    expect(handlerContextValues?.correlationId).toEqual(wantCorrelationId);
-    expect(deps.context.values.correlationId).not.toEqual(wantCorrelationId);
-    expect(res.status).toEqual(200);
-  });
+  it.each(['X-Correlation-ID', 'X-Request-ID'])(
+    'should take correlationId from %s header',
+    async (header) => {
+      const wantCorrelationId = randomUUID();
+      const deps = createMockDeps();
+      const middleware = createDiagMiddleware(deps);
+      const { handlerContextValues, res } = await sendRequest({
+        deps,
+        middleware,
+        onRequest: (req) => req.set(header, wantCorrelationId),
+      });
+      expect(handlerContextValues?.correlationId).toEqual(wantCorrelationId);
+      expect(deps.context.values.correlationId).not.toEqual(wantCorrelationId);
+      expect(res.status).toEqual(200);
+    },
+  );
 
   it('should set minLogLevel from X-Log-Level header', async () => {
     const deps = createMockDeps();
@@ -169,9 +182,9 @@ describe('diag-middleware', () => {
     const field3Value = faker.lorem.word();
 
     type CustomContextValues = ContextValues & {
-      [field1Name]: string,
-      [field2Name]: string,
-      [field3Name]: string,
+      [field1Name]: string;
+      [field2Name]: string;
+      [field3Name]: string;
     };
 
     const deps = createMockDeps<CustomContextValues>();
@@ -218,9 +231,9 @@ describe('diag-middleware', () => {
     const field3Value = faker.number.int();
 
     type CustomContextValues = ContextValues & {
-      [field1Name]: number,
-      [field2Name]: number,
-      [field3Name]: number,
+      [field1Name]: number;
+      [field2Name]: number;
+      [field3Name]: number;
     };
 
     const deps = createMockDeps<CustomContextValues>();
@@ -264,8 +277,8 @@ describe('diag-middleware', () => {
     const field2Value = faker.number.int();
 
     type CustomContextValues = ContextValues & {
-      [field1Name]: string,
-      [field2Name]: number,
+      [field1Name]: string;
+      [field2Name]: number;
     };
 
     const deps = createMockDeps<CustomContextValues>();

@@ -1,8 +1,14 @@
 #!/usr/bin/env tsx
 
-/* eslint-disable import/no-extraneous-dependencies -- dev deps are ok here */
-import { createAxiosClientLogInterceptors, formatProducerUserAgent } from '@diager-js/axios';
-import { ContextValues, createContext, createRootPinoLogger } from '@diager-js/core';
+import {
+  createAxiosClientLogInterceptors,
+  formatProducerUserAgent,
+} from '@diager-js/axios';
+import {
+  ContextValues,
+  createContext,
+  createRootPinoLogger,
+} from '@diager-js/core';
 import axios from 'axios';
 import { randomUUID } from 'crypto';
 import pino from 'pino';

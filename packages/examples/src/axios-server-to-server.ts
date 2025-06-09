@@ -1,13 +1,19 @@
 #!/usr/bin/env tsx
-/* eslint-disable import/no-extraneous-dependencies -- dev deps are ok here */
+
 import { createContext, createRootPinoLogger, Logger } from '@diager-js/core';
 import { randomUUID } from 'crypto';
 import express, { ErrorRequestHandler, Request, Response } from 'express';
 import pino from 'pino';
 import { createServer, RequestListener } from 'http';
-import { createAccessLogMiddleware, createDiagMiddleware } from '@diager-js/express/middleware';
+import {
+  createAccessLogMiddleware,
+  createDiagMiddleware,
+} from '@diager-js/express/middleware';
 import axios, { Axios } from 'axios';
-import { createAxiosClientLogInterceptors, formatProducerUserAgent } from '@diager-js/axios';
+import {
+  createAxiosClientLogInterceptors,
+  formatProducerUserAgent,
+} from '@diager-js/axios';
 
 /**
  * This example demonstrates usage of axios client log interceptors in a server to server scenario.
@@ -34,7 +40,7 @@ import { createAxiosClientLogInterceptors, formatProducerUserAgent } from '@diag
  */
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const errorHandler : ErrorRequestHandler = (err, req, res, next) => {
+const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   res.status(500).send({
     error: err.message,
     stack: err.stack,
@@ -43,11 +49,11 @@ const errorHandler : ErrorRequestHandler = (err, req, res, next) => {
 
 type PetsController = {
   getPets(req: Request, res: Response): Promise<void>;
-}
+};
 
 function createPetsController(deps: {
   rootLogger: Logger;
-  axiosInstance: Axios
+  axiosInstance: Axios;
 }): PetsController {
   const logger = deps.rootLogger.withGroup('pets-controller');
   const { axiosInstance } = deps;
@@ -84,13 +90,15 @@ function setupExpress() {
 
   const expressApp = express();
   expressApp.use(createDiagMiddleware({ context: diagCtx }));
-  expressApp.use(createAccessLogMiddleware({ logger: rootLogger.withGroup('access-logs') }));
+  expressApp.use(
+    createAccessLogMiddleware({ logger: rootLogger.withGroup('access-logs') }),
+  );
   expressApp.get('/pets', petsController.getPets);
   expressApp.use(errorHandler);
   return { listener: expressApp, rootLogger };
 }
 
-function startListener(params: { listener: RequestListener, logger: Logger }) {
+function startListener(params: { listener: RequestListener; logger: Logger }) {
   const { listener, logger } = params;
   const srv = createServer(listener);
   srv.listen(3001, () => {

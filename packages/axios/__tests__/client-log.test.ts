@@ -1,22 +1,30 @@
 import axios, { Method } from 'axios';
 import {
-  createServer, IncomingHttpHeaders, IncomingMessage, Server, ServerResponse,
+  createServer,
+  IncomingHttpHeaders,
+  IncomingMessage,
+  Server,
+  ServerResponse,
 } from 'http';
 import { AddressInfo } from 'net';
 import { faker } from '@faker-js/faker';
 import {
-  ContextValues, createContext, createRootPinoLogger, LogLevel,
+  ContextValues,
+  createContext,
+  createRootPinoLogger,
+  LogLevel,
 } from '@diager-js/core';
 import { randomUUID } from 'crypto';
 import pino from 'pino';
 import {
-  formatProducerUserAgent, createAxiosClientLogInterceptors, ProducerInfo, HttpTransportError,
+  formatProducerUserAgent,
+  createAxiosClientLogInterceptors,
+  ProducerInfo,
+  HttpTransportError,
 } from '../src/client-log.js';
 
 describe('client-log', () => {
-  function randomModuleInfo(
-    opts?: Partial<ProducerInfo>,
-  ): ProducerInfo {
+  function randomModuleInfo(opts?: Partial<ProducerInfo>): ProducerInfo {
     return {
       name: faker.commerce.productName(),
       version: faker.system.semver(),
@@ -31,8 +39,9 @@ describe('client-log', () => {
 
     it('should build user agent', () => {
       const moduleInfo = randomModuleInfo();
-      expect(formatProducerUserAgent(moduleInfo))
-        .toEqual(`${moduleInfo.name}/${moduleInfo.version} node/${process.version}`);
+      expect(formatProducerUserAgent(moduleInfo)).toEqual(
+        `${moduleInfo.name}/${moduleInfo.version} node/${process.version}`,
+      );
     });
 
     it('should build user agent with meta', () => {
@@ -42,13 +51,14 @@ describe('client-log', () => {
           key2: faker.lorem.word(),
         },
       });
-      expect(formatProducerUserAgent(moduleInfo))
-        .toEqual(`${moduleInfo.name}/${moduleInfo.version} node/${process.version} (key1=${moduleInfo.meta?.key1}; key2=${moduleInfo.meta?.key2})`);
+      expect(formatProducerUserAgent(moduleInfo)).toEqual(
+        `${moduleInfo.name}/${moduleInfo.version} node/${process.version} (key1=${moduleInfo.meta?.key1}; key2=${moduleInfo.meta?.key2})`,
+      );
     });
   });
 
   describe('axios interceptors', () => {
-    let server : Server | null;
+    let server: Server | null;
     afterEach(async () => {
       if (server !== null) {
         const srv = server;
@@ -90,7 +100,12 @@ describe('client-log', () => {
     }
 
     it('should log start and end entries for ok requests', async () => {
-      const wantMethod: Method = faker.helpers.arrayElement(['get', 'post', 'put', 'delete']);
+      const wantMethod: Method = faker.helpers.arrayElement([
+        'get',
+        'post',
+        'put',
+        'delete',
+      ]);
       const mockLogger = createMockLogger();
       const wantCode = faker.number.int({ min: 200, max: 299 });
       const wantReqHeaders = {
@@ -128,33 +143,42 @@ describe('client-log', () => {
       expect(mockLogger.logEntries).toHaveLength(2);
 
       const startSendingEntry = mockLogger.logEntries[0];
-      expect(startSendingEntry).toEqual(expect.objectContaining({
-        level: 30,
-        msg: `SEND_REQUEST_STARTED: ${wantMethod.toUpperCase()} ${urlPath}`,
-        data: expect.objectContaining({
-          method: wantMethod.toUpperCase(),
-          baseURL,
-          path: urlPath,
-          headers: expect.objectContaining(wantReqHeaders),
-        }),
-      }));
-
-      const completeSendingEntry = mockLogger.logEntries[1];
-      expect(completeSendingEntry).toEqual(expect.objectContaining({
-        level: 30,
-        msg: `SEND_REQUEST_COMPLETED: ${wantCode} - ${urlPath}`,
-        data: expect.objectContaining({
-          statusCode: wantCode,
-          headers: expect.objectContaining({
-            ...wantResHeaders,
-            'transfer-encoding': 'chunked',
+      expect(startSendingEntry).toEqual(
+        expect.objectContaining({
+          level: 30,
+          msg: `SEND_REQUEST_STARTED: ${wantMethod.toUpperCase()} ${urlPath}`,
+          data: expect.objectContaining({
+            method: wantMethod.toUpperCase(),
+            baseURL,
+            path: urlPath,
+            headers: expect.objectContaining(wantReqHeaders),
           }),
         }),
-      }));
+      );
+
+      const completeSendingEntry = mockLogger.logEntries[1];
+      expect(completeSendingEntry).toEqual(
+        expect.objectContaining({
+          level: 30,
+          msg: `SEND_REQUEST_COMPLETED: ${wantCode} - ${urlPath}`,
+          data: expect.objectContaining({
+            statusCode: wantCode,
+            headers: expect.objectContaining({
+              ...wantResHeaders,
+              'transfer-encoding': 'chunked',
+            }),
+          }),
+        }),
+      );
     });
 
     it('should log with custom level', async () => {
-      const wantMethod: Method = faker.helpers.arrayElement(['get', 'post', 'put', 'delete']);
+      const wantMethod: Method = faker.helpers.arrayElement([
+        'get',
+        'post',
+        'put',
+        'delete',
+      ]);
       const mockLogger = createMockLogger();
       const wantCode = faker.number.int({ min: 200, max: 299 });
       server = createServer(
@@ -179,14 +203,18 @@ describe('client-log', () => {
       expect(mockLogger.logEntries).toHaveLength(2);
 
       const startSendingEntry = mockLogger.logEntries[0];
-      expect(startSendingEntry).toEqual(expect.objectContaining({
-        level: 20,
-      }));
+      expect(startSendingEntry).toEqual(
+        expect.objectContaining({
+          level: 20,
+        }),
+      );
 
       const completeSendingEntry = mockLogger.logEntries[1];
-      expect(completeSendingEntry).toEqual(expect.objectContaining({
-        level: 20,
-      }));
+      expect(completeSendingEntry).toEqual(
+        expect.objectContaining({
+          level: 20,
+        }),
+      );
     });
 
     it('should not include response body for success', async () => {
@@ -212,16 +240,23 @@ describe('client-log', () => {
       });
       expect(mockLogger.logEntries).toHaveLength(2);
       const completeSendingEntry = mockLogger.logEntries[1];
-      expect(completeSendingEntry).toEqual(expect.objectContaining({
-        data: expect.not.objectContaining({ body: expect.any(String) }),
-      }));
+      expect(completeSendingEntry).toEqual(
+        expect.objectContaining({
+          data: expect.not.objectContaining({ body: expect.any(String) }),
+        }),
+      );
     });
 
     it('should inject User-Agent', async () => {
-      const wantMethod: Method = faker.helpers.arrayElement(['get', 'post', 'put', 'delete']);
+      const wantMethod: Method = faker.helpers.arrayElement([
+        'get',
+        'post',
+        'put',
+        'delete',
+      ]);
       const mockLogger = createMockLogger();
       const wantUserAgent = faker.commerce.productName();
-      let gotUserAgent : string | undefined;
+      let gotUserAgent: string | undefined;
       server = createServer(
         async (req: IncomingMessage, res: ServerResponse) => {
           gotUserAgent = req.headers['user-agent'];
@@ -247,20 +282,27 @@ describe('client-log', () => {
 
       const startSendingEntry = mockLogger.logEntries[0];
       expect(gotUserAgent).toEqual(wantUserAgent);
-      expect(startSendingEntry).toEqual(expect.objectContaining({
-        data: expect.objectContaining({
-          headers: expect.objectContaining({
-            'User-Agent': wantUserAgent,
+      expect(startSendingEntry).toEqual(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            headers: expect.objectContaining({
+              'User-Agent': wantUserAgent,
+            }),
           }),
         }),
-      }));
+      );
     });
 
     it('should use caller provided User-Agent', async () => {
-      const wantMethod: Method = faker.helpers.arrayElement(['get', 'post', 'put', 'delete']);
+      const wantMethod: Method = faker.helpers.arrayElement([
+        'get',
+        'post',
+        'put',
+        'delete',
+      ]);
       const mockLogger = createMockLogger();
       const wantUserAgent = faker.internet.userAgent();
-      let gotUserAgent : string | undefined;
+      let gotUserAgent: string | undefined;
       server = createServer(
         async (req: IncomingMessage, res: ServerResponse) => {
           gotUserAgent = req.headers['user-agent'];
@@ -289,17 +331,24 @@ describe('client-log', () => {
 
       const startSendingEntry = mockLogger.logEntries[0];
       expect(gotUserAgent).toEqual(wantUserAgent);
-      expect(startSendingEntry).toEqual(expect.objectContaining({
-        data: expect.objectContaining({
-          headers: expect.objectContaining({
-            'User-Agent': wantUserAgent,
+      expect(startSendingEntry).toEqual(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            headers: expect.objectContaining({
+              'User-Agent': wantUserAgent,
+            }),
           }),
         }),
-      }));
+      );
     });
 
     it('should handle configured headers', async () => {
-      const wantMethod: Method = faker.helpers.arrayElement(['get', 'post', 'put', 'delete']);
+      const wantMethod: Method = faker.helpers.arrayElement([
+        'get',
+        'post',
+        'put',
+        'delete',
+      ]);
       const mockLogger = createMockLogger();
       const wantCommonReqHeaders = {
         Accept: faker.lorem.word(),
@@ -338,18 +387,25 @@ describe('client-log', () => {
       expect(mockLogger.logEntries).toHaveLength(2);
 
       const startSendingEntry = mockLogger.logEntries[0];
-      expect(startSendingEntry).toEqual(expect.objectContaining({
-        data: expect.objectContaining({
-          headers: expect.objectContaining({
-            ...wantCommonReqHeaders,
-            ...wantMethodReqHeaders,
+      expect(startSendingEntry).toEqual(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            headers: expect.objectContaining({
+              ...wantCommonReqHeaders,
+              ...wantMethodReqHeaders,
+            }),
           }),
         }),
-      }));
+      );
     });
 
     it('should end for error', async () => {
-      const wantMethod: Method = faker.helpers.arrayElement(['get', 'post', 'put', 'delete']);
+      const wantMethod: Method = faker.helpers.arrayElement([
+        'get',
+        'post',
+        'put',
+        'delete',
+      ]);
       const mockLogger = createMockLogger();
       const wantCode = faker.number.int({ min: 399, max: 599 });
       const wantResHeaders = {
@@ -373,26 +429,29 @@ describe('client-log', () => {
         context: createContext({ correlationId: randomUUID() }),
       }).attachTo(client);
       const urlPath = `/something/${faker.lorem.word()}/something2`;
-      const err = await client.request({
-        method: wantMethod,
-        url: urlPath,
-      })
+      const err = await client
+        .request({
+          method: wantMethod,
+          url: urlPath,
+        })
         .then(() => null)
         .catch((e) => e);
       expect(err).not.toBeNull();
       expect(mockLogger.logEntries).toHaveLength(2);
       const completeSendingEntry = mockLogger.logEntries[1];
-      expect(completeSendingEntry).toEqual(expect.objectContaining({
-        level: 30,
-        msg: `SEND_REQUEST_COMPLETED: ${wantCode} - ${urlPath}`,
-        data: expect.objectContaining({
-          statusCode: wantCode,
-          headers: expect.objectContaining({
-            ...wantResHeaders,
-            'transfer-encoding': 'chunked',
+      expect(completeSendingEntry).toEqual(
+        expect.objectContaining({
+          level: 30,
+          msg: `SEND_REQUEST_COMPLETED: ${wantCode} - ${urlPath}`,
+          data: expect.objectContaining({
+            statusCode: wantCode,
+            headers: expect.objectContaining({
+              ...wantResHeaders,
+              'transfer-encoding': 'chunked',
+            }),
           }),
         }),
-      }));
+      );
     });
 
     it('should end for error with response data', async () => {
@@ -413,20 +472,23 @@ describe('client-log', () => {
         context: createContext({ correlationId: randomUUID() }),
       }).attachTo(client);
       const urlPath = `/something/${faker.lorem.word()}/something2`;
-      const err = await client.request({
-        method: 'get',
-        url: urlPath,
-      })
+      const err = await client
+        .request({
+          method: 'get',
+          url: urlPath,
+        })
         .then(() => null)
         .catch((e) => e);
       expect(err).not.toBeNull();
       expect(mockLogger.logEntries).toHaveLength(2);
       const completeSendingEntry = mockLogger.logEntries[1];
-      expect(completeSendingEntry).toEqual(expect.objectContaining({
-        data: expect.objectContaining({
-          body: wantData,
+      expect(completeSendingEntry).toEqual(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            body: wantData,
+          }),
         }),
-      }));
+      );
     });
 
     it('should end for error with response data stream', async () => {
@@ -450,20 +512,23 @@ describe('client-log', () => {
         context: createContext({ correlationId: randomUUID() }),
       }).attachTo(client);
       const urlPath = `/something/${faker.lorem.word()}/something2`;
-      const res = await await client.request({
-        method: 'get',
-        url: urlPath,
-      })
+      const res = await await client
+        .request({
+          method: 'get',
+          url: urlPath,
+        })
         .then(() => null)
         .catch((e) => e);
       expect(res).not.toBeNull();
       expect(mockLogger.logEntries).toHaveLength(2);
       const completeSendingEntry = mockLogger.logEntries[1];
-      expect(completeSendingEntry).toEqual(expect.objectContaining({
-        data: expect.objectContaining({
-          body: wantData,
+      expect(completeSendingEntry).toEqual(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            body: wantData,
+          }),
         }),
-      }));
+      );
     });
 
     it('should wrap transport error', async () => {
@@ -484,22 +549,26 @@ describe('client-log', () => {
         context: createContext({ correlationId: randomUUID() }),
       }).attachTo(client);
       const urlPath = `/something/${faker.lorem.word()}/something2`;
-      const err = await client.request({
-        method: 'get',
-        url: urlPath,
-      }).then(() => null)
+      const err = await client
+        .request({
+          method: 'get',
+          url: urlPath,
+        })
+        .then(() => null)
         .catch((e) => e);
       expect(err).not.toBeNull();
       expect(err).toBeInstanceOf(HttpTransportError);
       const transportErr = err as HttpTransportError;
-      expect(transportErr).toEqual(expect.objectContaining({
-        name: 'HTTP_TRANSPORT_ERROR',
-        response: expect.objectContaining({
-          status: wantCode,
-          data: wantBody,
+      expect(transportErr).toEqual(
+        expect.objectContaining({
+          name: 'HTTP_TRANSPORT_ERROR',
+          response: expect.objectContaining({
+            status: wantCode,
+            data: wantBody,
+          }),
+          cause: expect.anything(),
         }),
-        cause: expect.anything(),
-      }));
+      );
     });
 
     it('should keep request/response unaffected', async () => {
@@ -507,10 +576,12 @@ describe('client-log', () => {
       const wantReqData = faker.lorem.sentence(3);
       const wantResData = faker.lorem.sentence(3);
       const mockLogger = createMockLogger();
-      let gotReq : {
-        url?: string,
-        body: string,
-      } | undefined;
+      let gotReq:
+        | {
+            url?: string;
+            body: string;
+          }
+        | undefined;
       server = createServer(
         async (req: IncomingMessage, res: ServerResponse) => {
           const buffers: never[] = [];
@@ -548,8 +619,10 @@ describe('client-log', () => {
     describe('context', () => {
       it('should inject default context headers', async () => {
         const mockLogger = createMockLogger();
-        const context = createContext<ContextValues>({ correlationId: randomUUID().toString() });
-        let gotHeaders : IncomingHttpHeaders | undefined;
+        const context = createContext<ContextValues>({
+          correlationId: randomUUID().toString(),
+        });
+        let gotHeaders: IncomingHttpHeaders | undefined;
         server = createServer(
           async (req: IncomingMessage, res: ServerResponse) => {
             gotHeaders = req.headers;
@@ -567,10 +640,13 @@ describe('client-log', () => {
         const urlPath = `/something/${faker.lorem.word()}/something2`;
         const correlationId = faker.string.uuid();
         const logLevel = faker.helpers.objectValue(LogLevel);
-        const res = await context.child({
-          correlationId,
-          minLogLevel: logLevel,
-        }, () => client.get(urlPath));
+        const res = await context.child(
+          {
+            correlationId,
+            minLogLevel: logLevel,
+          },
+          () => client.get(urlPath),
+        );
         expect(res.status).toEqual(200);
         expect(gotHeaders?.['x-correlation-id']).toEqual(correlationId);
         expect(gotHeaders?.['x-log-level']).toEqual(logLevel);

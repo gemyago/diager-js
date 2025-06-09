@@ -39,20 +39,23 @@ describe('pino-adapter', () => {
       [LogLevel.trace, 10],
     ] as const;
 
-    it.each(knownLevels)('should write log messages with %s level', (levelName, levelNum) => {
-      const mockDeps = createMockDeps();
-      const rootLogger = createRootPinoLogger(mockDeps);
+    it.each(knownLevels)(
+      'should write log messages with %s level',
+      (levelName, levelNum) => {
+        const mockDeps = createMockDeps();
+        const rootLogger = createRootPinoLogger(mockDeps);
 
-      const wantMsg = faker.lorem.sentence();
-      rootLogger[levelName](wantMsg);
-      expect(mockDeps.mockDestination.written).toHaveLength(1);
-      const gotMessage = mockDeps.mockDestination.written[0];
-      expect(gotMessage).toMatchObject({
-        level: levelNum,
-        msg: wantMsg,
-        context: mockDeps.diagCtxVals,
-      });
-    });
+        const wantMsg = faker.lorem.sentence();
+        rootLogger[levelName](wantMsg);
+        expect(mockDeps.mockDestination.written).toHaveLength(1);
+        const gotMessage = mockDeps.mockDestination.written[0];
+        expect(gotMessage).toMatchObject({
+          level: levelNum,
+          msg: wantMsg,
+          context: mockDeps.diagCtxVals,
+        });
+      },
+    );
 
     describe('generic write', () => {
       it('should write log messages with runtime defined level', () => {
@@ -89,39 +92,48 @@ describe('pino-adapter', () => {
       { actual: 'warn', configured: 'warn', want: true },
       { actual: 'debug', configured: 'info', want: false },
       { actual: 'trace', configured: 'info', want: false },
-    ] as const)('should be true if actual level ($actual) is above configured ($configured)', (tc) => {
-      const mockDeps = createMockDeps();
-      mockDeps.pinoLogger.level = tc.configured;
-      const rootLogger = createRootPinoLogger(mockDeps);
-      expect(rootLogger.isLevelEnabled(tc.actual)).toBe(tc.want);
-    });
-
-    it.each([
-      { actual: 'error', configured: 'warn', want: true },
-      { actual: 'warn', configured: 'warn', want: true },
-      { actual: 'debug', configured: 'info', want: false },
-      { actual: 'trace', configured: 'info', want: false },
-    ] as const)('should be true if actual level ($actual) is above configured ($configured) defined in context', (tc) => {
-      const mockDeps = createMockDeps();
-      mockDeps.pinoLogger.level = 'trace';
-      const rootLogger = createRootPinoLogger(mockDeps);
-      mockDeps.context.child({ minLogLevel: tc.configured }, () => {
+    ] as const)(
+      'should be true if actual level ($actual) is above configured ($configured)',
+      (tc) => {
+        const mockDeps = createMockDeps();
+        mockDeps.pinoLogger.level = tc.configured;
+        const rootLogger = createRootPinoLogger(mockDeps);
         expect(rootLogger.isLevelEnabled(tc.actual)).toBe(tc.want);
-      });
-    });
+      },
+    );
 
     it.each([
       { actual: 'error', configured: 'warn', want: true },
       { actual: 'warn', configured: 'warn', want: true },
       { actual: 'debug', configured: 'info', want: false },
       { actual: 'trace', configured: 'info', want: false },
-    ] as const)('should be properly inherited from parent (actual: $actual, configured: $configured)', (tc) => {
-      const mockDeps = createMockDeps();
-      mockDeps.pinoLogger.level = tc.configured;
-      const rootLogger = createRootPinoLogger(mockDeps);
-      const childLogger = rootLogger.withGroup(faker.lorem.word());
-      expect(childLogger.isLevelEnabled(tc.actual)).toBe(tc.want);
-    });
+    ] as const)(
+      'should be true if actual level ($actual) is above configured ($configured) defined in context',
+      (tc) => {
+        const mockDeps = createMockDeps();
+        mockDeps.pinoLogger.level = 'trace';
+        const rootLogger = createRootPinoLogger(mockDeps);
+        mockDeps.context.child({ minLogLevel: tc.configured }, () => {
+          expect(rootLogger.isLevelEnabled(tc.actual)).toBe(tc.want);
+        });
+      },
+    );
+
+    it.each([
+      { actual: 'error', configured: 'warn', want: true },
+      { actual: 'warn', configured: 'warn', want: true },
+      { actual: 'debug', configured: 'info', want: false },
+      { actual: 'trace', configured: 'info', want: false },
+    ] as const)(
+      'should be properly inherited from parent (actual: $actual, configured: $configured)',
+      (tc) => {
+        const mockDeps = createMockDeps();
+        mockDeps.pinoLogger.level = tc.configured;
+        const rootLogger = createRootPinoLogger(mockDeps);
+        const childLogger = rootLogger.withGroup(faker.lorem.word());
+        expect(childLogger.isLevelEnabled(tc.actual)).toBe(tc.want);
+      },
+    );
 
     it('should delegate to pino if level is unknown', () => {
       const mockDeps = createMockDeps();
@@ -129,7 +141,9 @@ describe('pino-adapter', () => {
       const unknownLevel = faker.lorem.word() as LogLevel;
       mockDeps.pinoLogger.isLevelEnabled = jest.fn(() => true);
       expect(rootLogger.isLevelEnabled(unknownLevel)).toBe(true);
-      expect(mockDeps.pinoLogger.isLevelEnabled).toHaveBeenCalledWith(unknownLevel);
+      expect(mockDeps.pinoLogger.isLevelEnabled).toHaveBeenCalledWith(
+        unknownLevel,
+      );
     });
   });
 

@@ -17,3 +17,6 @@ lint:
 
 test:
 	$(jest) --coverage
+
+publish:
+	npm publish --access public

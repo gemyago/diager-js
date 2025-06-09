@@ -15,3 +15,6 @@ lint:
 
 test:
 	@echo No tests here
+
+publish:
+	@echo No example packages

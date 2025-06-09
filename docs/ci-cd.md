@@ -2,16 +2,16 @@
 
 This document outlines the step-by-step plan to add CI/CD to this project using GitHub Actions.
 
-## [ ] 1. Set up GitHub Actions workflows
-1. [ ] Create `.github/workflows/ci.yml` for continuous integration (CI).
+## [x] 1. Set up GitHub Actions workflows
+1. [x] Create `.github/workflows/ci.yml` for continuous integration (CI).
 2. [ ] Create `.github/workflows/release.yml` for release automation.
 
-## [ ] 2. Continuous Integration (CI) Workflow
-1. [ ] Trigger on pull request creation to main branches.
-2. [ ] Set up Node.js environment (use .nvmrc to get version).
-3. [ ] Install dependencies (root and all packages).
-4. [ ] Run `make lint` to check code style and quality.
-5. [ ] Run `make test` to execute all tests.
+## [x] 2. Continuous Integration (CI) Workflow
+1. [x] Trigger on pull request creation to main branches.
+2. [x] Set up Node.js environment (use .nvmrc to get version).
+3. [x] Install dependencies (root and all packages).
+4. [x] Run `make lint` to check code style and quality.
+5. [x] Run `make test` to execute all tests.
 
 ## [ ] 3. Manually Triggered Release Preparation Workflow
 1. [ ] Create a workflow (`release.yml`) with `workflow_dispatch` trigger.

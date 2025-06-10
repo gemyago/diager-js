@@ -6,6 +6,24 @@ alwaysApply: false
 #  Rules and commands when working with github
 
 To create PR to main branch, use command below:
-```
+```sh
 pr create --fill -B main --draft
+```
+
+Run release workflow using one of the commands below, depending on what user asks. User should mention version, if no suggest and confirm (see package.json for current version).
+```sh
+# Pre-release
+gh workflow run release.yml --field release_name=<version> --field prerelease=true
+
+# Pre-release from a specific branch 
+gh workflow run release.yml --ref=<branch> --field release_name=<version> --field prerelease=true
+
+# Normal release
+gh workflow run release.yml --field release_name=<version> --field prerelease=false
+
+# Watch for completion if asked
+gh run watch <runId>
+
+# Or periodically check status
+gh run view <runId>
 ```

@@ -1,6 +1,6 @@
 {
   "name": "@diager-js/axios",
-  "version": "0.0.1",
+  "version": "0.0.2-alpha.1",
   "type": "module",
   "main": "dist/cjs/src/index.js",
   "exports": {
@@ -12,7 +12,7 @@
     }
   },
   "dependencies": {
-    "@diager-js/core": "^0.0.1"
+    "@diager-js/core": "^0.0.2-alpha.1"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0",

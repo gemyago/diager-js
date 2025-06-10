@@ -1,0 +1,16 @@
+---
+description: 
+globs: *.ts,*.tsx
+alwaysApply: false
+---
+# typescript project rules, apply in agent mode
+
+Please also apply [general.mdc](mdc:.cursor/rules/general.mdc) rules
+
+## common rules
+- Honor max line length, it should be 120
+
+## Rules for tests
+- createMockDeps should be used to initialize dependencies
+- when implementing multiple test cases, iterate on each case separately untill it's green
+* follow @jest.mdc if you need to write or run unit tests

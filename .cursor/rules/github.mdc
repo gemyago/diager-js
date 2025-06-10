@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+#  Rules and commands when working with github
+
+To create PR to main branch, use command below:
+```
+pr create --fill -B main --draft
+```

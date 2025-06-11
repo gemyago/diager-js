@@ -70,17 +70,8 @@ jobs:
           VERSION="${{ github.event.inputs.release_name }}"
           VERSION="${VERSION#v}"
           
-          # Update root package.json
-          npm version "$VERSION" --no-git-tag-version
-          
-          # Update all package versions
-          for package_dir in packages/*/; do
-            if [ -f "$package_dir/package.json" ]; then
-              cd "$package_dir"
-              npm version "$VERSION" --no-git-tag-version
-              cd - > /dev/null
-            fi
-          done
+          # Update versions using the script
+          ./scripts/update-version.sh "$VERSION"
           
           # Commit changes
           git add .

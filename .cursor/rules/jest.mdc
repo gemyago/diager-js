@@ -1,0 +1,9 @@
+---
+description: Use when need to run unit tests
+globs: 
+alwaysApply: false
+---
+# Apply in agent mode when need to run tests
+
+- ALWAYS use `jest` directly (not npm/pnpm) to run individual tests
+- use faker (@faker-js/faker) to generate random texts and data

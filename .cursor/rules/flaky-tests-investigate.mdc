@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Steps here can help to investigate flaky testes
+
+For a provided test sute, use `.each(Array.from({ length: 1000 }))` snippet
+Start from toplevel describe, update it to with the snippet above and run the suite
+Review output, identify flaky test. Update the file to repeat just flaky test
+Analyse and fix flaky test
